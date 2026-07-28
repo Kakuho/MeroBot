@@ -44,8 +44,8 @@ class WebhookActions{
     return container.createWebhook(GetWebhookName(container));
   }
 
-  static public void CreateWebhookIfNotOwn(IWebhookContainer container){
-    ChannelHasOwnWebhook(container)
+  static public CompletableFuture<Webhook> CreateWebhookIfNotOwn(IWebhookContainer container){
+    return ChannelHasOwnWebhook(container)
       .thenCompose((Boolean hasWebhook) ->{
         if(hasWebhook){
           return CompletableFuture.failedFuture(
@@ -55,7 +55,12 @@ class WebhookActions{
         else{
           return CreateWebhook(container).submit();
         }
-      })
+      });
+  }
+
+  static public void CreateWebhookIfNotOwnFinal(IWebhookContainer container){
+    // standalone version of CreateWebhookIfNotOwn, not to be used for chaining
+    CreateWebhookIfNotOwn(container)
       .whenComplete( (s, error) -> {});
   }
 }
