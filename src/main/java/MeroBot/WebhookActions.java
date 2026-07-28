@@ -34,10 +34,24 @@ class WebhookActions{
       }
       return false;
     });
+
   }
 
   static public String GetWebhookName(IWebhookContainer container){
     return "Merobot_" + container.getId();
+  }
+
+  static public CompletableFuture<Webhook> GetWebhook(IWebhookContainer container){
+    return container.retrieveWebhooks().submit()
+    .thenApply( (webhooks) ->{
+      JDA jda = container.getJDA();
+      for(Webhook webhook: webhooks){
+        if(OwnWebhook(jda, webhook)){
+          return webhook;
+        }
+      }
+      return null;
+    });
   }
 
   static public WebhookAction CreateWebhook(IWebhookContainer container){
@@ -51,6 +65,7 @@ class WebhookActions{
           return CompletableFuture.failedFuture(
             new IllegalStateException("Webhook already exists")
           );
+
         }
         else{
           return CreateWebhook(container).submit();
@@ -61,6 +76,24 @@ class WebhookActions{
   static public void CreateWebhookIfNotOwnFinal(IWebhookContainer container){
     // standalone version of CreateWebhookIfNotOwn, not to be used for chaining
     CreateWebhookIfNotOwn(container)
+      .whenComplete( (s, error) -> {});
+  }
+
+  static public void SendMessage(IWebhookContainer container, String message){
+    ChannelHasOwnWebhook(container)
+      .thenCompose((Boolean hasWebhook) -> {
+        if(!hasWebhook){
+          return CompletableFuture.failedFuture(
+            new IllegalStateException("Webhook doesn't exist for this channel")
+          );
+        }
+        else{
+          return GetWebhook(container);
+        }
+      })
+      .thenCompose((Webhook webhook) ->{
+        return webhook.sendMessage(message).submit();
+      })
       .whenComplete( (s, error) -> {});
   }
 }
