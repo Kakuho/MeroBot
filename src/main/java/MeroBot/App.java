@@ -1,9 +1,10 @@
 package MeroBot;
 
 import net.dv8tion.jda.api.JDABuilder;
+import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.JDA;
-
-import MeroBot.StatusChangeListener;
+import net.dv8tion.jda.api.requests.GatewayIntent;
 
 public class App {
     public static void main(String[] args) {
@@ -11,7 +12,12 @@ public class App {
         System.out.println(System.getenv("merotoken"));
         String token = System.getenv("merotoken");
         JDA bot = JDABuilder.createDefault(token)
-                            .addEventListeners(new StatusChangeListener())
+                            .enableIntents(GatewayIntent.MESSAGE_CONTENT)
                             .build();
+
+        bot.updateCommands()
+          .addCommands(
+          )
+          .queue();
     }
 }
