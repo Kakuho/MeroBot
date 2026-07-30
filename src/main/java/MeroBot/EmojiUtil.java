@@ -8,9 +8,18 @@ import net.dv8tion.jda.api.entities.Guild;
 import java.util.List;
 
 class EmojiUtil{
-  static public boolean GuildHasEmoji(Guild guild, String emojiName){
+  static public RichCustomEmoji GetEmojiFromGuild(Guild guild, String emojiName){
     List<RichCustomEmoji> emojiList = guild.getEmojisByName(emojiName, false);
     if(emojiList.size() >= 1){
+      return emojiList.get(0);
+    }
+    else{
+      return null;
+    }
+  }
+
+  static public boolean GuildHasEmoji(Guild guild, String emojiName){
+    if(GetEmojiFromGuild(guild, emojiName) != null){
       return true;
     }
     else{
