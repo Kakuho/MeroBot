@@ -4,6 +4,7 @@ import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.channel.attribute.IWebhookContainer;
 import net.dv8tion.jda.api.entities.Webhook;
 import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.requests.RestAction;
 import net.dv8tion.jda.api.requests.restaction.WebhookAction;
 
@@ -23,7 +24,7 @@ class WebhookActions{
     }
   }
 
-  static public CompletableFuture<Boolean> ChannelHasOwnWebhook(IWebhookContainer container){
+  static public CompletableFuture<Boolean> ChannelHasOwnWebhookAsync(IWebhookContainer container){
     return container.retrieveWebhooks().submit()
     .thenApply( (webhooks) ->{
       JDA jda = container.getJDA();
@@ -34,14 +35,13 @@ class WebhookActions{
       }
       return false;
     });
-
   }
 
   static public String GetWebhookName(IWebhookContainer container){
     return "Merobot_" + container.getId();
   }
 
-  static public CompletableFuture<Webhook> GetWebhook(IWebhookContainer container){
+  static public CompletableFuture<Webhook> GetWebhookAsync(IWebhookContainer container){
     return container.retrieveWebhooks().submit()
     .thenApply( (webhooks) ->{
       JDA jda = container.getJDA();
@@ -54,33 +54,26 @@ class WebhookActions{
     });
   }
 
-  static public WebhookAction CreateWebhook(IWebhookContainer container){
+  static public WebhookAction CreateWebhookAsync(IWebhookContainer container){
     return container.createWebhook(GetWebhookName(container));
   }
 
-  static public CompletableFuture<Webhook> CreateWebhookIfNotOwn(IWebhookContainer container){
-    return ChannelHasOwnWebhook(container)
+  static public CompletableFuture<Webhook> CreateWebhookIfNotOwnAsync(IWebhookContainer container){
+    return ChannelHasOwnWebhookAsync(container)
       .thenCompose((Boolean hasWebhook) ->{
         if(hasWebhook){
           return CompletableFuture.failedFuture(
             new IllegalStateException("Webhook already exists")
           );
-
         }
         else{
-          return CreateWebhook(container).submit();
+          return CreateWebhookAsync(container).submit();
         }
       });
   }
 
-  static public void CreateWebhookIfNotOwnFinal(IWebhookContainer container){
-    // standalone version of CreateWebhookIfNotOwn, not to be used for chaining
-    CreateWebhookIfNotOwn(container)
-      .whenComplete( (s, error) -> {});
-  }
-
-  static public void SendMessage(IWebhookContainer container, String message){
-    ChannelHasOwnWebhook(container)
+  static public CompletableFuture<Message> SendMessageAsync(IWebhookContainer container, String message){
+    return ChannelHasOwnWebhookAsync(container)
       .thenCompose((Boolean hasWebhook) -> {
         if(!hasWebhook){
           return CompletableFuture.failedFuture(
@@ -88,12 +81,11 @@ class WebhookActions{
           );
         }
         else{
-          return GetWebhook(container);
+          return GetWebhookAsync(container);
         }
       })
       .thenCompose((Webhook webhook) ->{
         return webhook.sendMessage(message).submit();
-      })
-      .whenComplete( (s, error) -> {});
+      });
   }
 }
