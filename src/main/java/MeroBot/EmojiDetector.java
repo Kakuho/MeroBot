@@ -5,6 +5,8 @@ import MeroBot.EmojiUtil;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.JDA;
 
+import java.util.List;
+import java.util.ArrayList;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 
@@ -36,6 +38,28 @@ class EmojiDetector{
     else{
       return false;
     }
+  }
+
+  static public class EmojiIndexer{
+    private int start;
+    private int end;
+
+    public EmojiIndexer(int start, int end){
+      this.start = start;
+      this.end = end;
+    }
+
+    public int GetStart(){ return this.start;}
+    public int GetEnd(){ return this.end;}
+  }
+
+  static public List<EmojiIndexer> GetEmojis(String message){
+    Matcher matcher = EMOJI_PATTERN.matcher(message);
+    List<EmojiIndexer> emojis = new ArrayList<EmojiIndexer>();
+    while(matcher.find()){
+      emojis.add(new EmojiIndexer(matcher.start(), matcher.end()));
+    }
+    return emojis;
   }
 
   static public String ReplaceEmoji(JDA jda, Guild fromGuild, String message){
