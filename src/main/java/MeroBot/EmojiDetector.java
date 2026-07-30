@@ -27,7 +27,7 @@ import java.util.regex.Matcher;
 //    given the message = ":moomgun: but not <a:moomgun:143242>"
 //    the bot replaces it with "<a:moomgun:1433243>, <a:moomgun:143242>"
 
-class EmojiDetector{
+public class EmojiDetector{
   static private final Pattern EMOJI_PATTERN = Pattern.compile("(?<!<a):[a-zA-Z]+:(?![0-9]+>)");
 
   static public boolean HasEmoji(String message){

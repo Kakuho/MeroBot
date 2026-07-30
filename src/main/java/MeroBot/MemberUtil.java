@@ -2,7 +2,7 @@ package MeroBot;
 
 import net.dv8tion.jda.api.entities.Member;
 
-class MemberUtil{
+public class MemberUtil{
   static public String GetAvatarUrl(Member member){
     return member.getEffectiveAvatarUrl();
   }

@@ -9,7 +9,7 @@ import net.dv8tion.jda.api.entities.emoji.RichCustomEmoji;
 
 import java.util.concurrent.CompletableFuture;
 
-class EmojiActions{
+public class EmojiActions{
   static public CompletableFuture<Message> PostEmojiAsync(GuildMessageChannel channel, String emojiName){
     Guild guild = channel.getGuild();
     if(EmojiUtil.GuildHasEmoji(guild, emojiName)){

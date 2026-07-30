@@ -5,7 +5,7 @@ import net.dv8tion.jda.api.entities.Webhook;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.attribute.IWebhookContainer;
 
-class WebhookUtil{
+public class WebhookUtil{
   static public boolean OwnWebhook(JDA jda, Webhook webhook){
     User selfUser = jda.getSelfUser();
     User webhookOwner = webhook.getOwnerAsUser();

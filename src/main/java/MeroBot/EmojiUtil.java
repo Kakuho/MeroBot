@@ -7,7 +7,7 @@ import net.dv8tion.jda.api.entities.Guild;
 
 import java.util.List;
 
-class EmojiUtil{
+public class EmojiUtil{
   static public RichCustomEmoji GetEmojiFromGuild(Guild guild, String emojiName){
     List<RichCustomEmoji> emojiList = guild.getEmojisByName(emojiName, false);
     if(emojiList.size() >= 1){
