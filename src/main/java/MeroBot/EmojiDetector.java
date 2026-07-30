@@ -81,7 +81,7 @@ public class EmojiDetector{
         emojiId = emoji != null ? emoji.getFormatted() : null; 
       }
       if(emojiId != null){
-        message = message.replace(emojiRegion, "<a:" + emojiRaw + ":" + emojiId + ">");
+        message = message.replace(emojiRegion, emojiId);
       }
     }
     return message;
