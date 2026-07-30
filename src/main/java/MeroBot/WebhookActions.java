@@ -19,23 +19,12 @@ import java.util.concurrent.CompletableFuture;
 //    - For each channel, MeroBot creates one and only one webhook
 
 class WebhookActions{
-  static public boolean OwnWebhook(JDA jda, Webhook webhook){
-    User selfUser = jda.getSelfUser();
-    User webhookOwner = webhook.getOwnerAsUser();
-    if(webhookOwner.getId().equals(selfUser.getId())){
-      return true;
-    }
-    else{
-      return false;
-    }
-  }
-
   static public CompletableFuture<Boolean> ChannelHasOwnWebhookAsync(IWebhookContainer container){
     return container.retrieveWebhooks().submit()
     .thenApply( (webhooks) ->{
       JDA jda = container.getJDA();
       for(Webhook webhook: webhooks){
-        if(OwnWebhook(jda, webhook)){
+        if(WebhookUtil.OwnWebhook(jda, webhook)){
           return true;
         }
       }
@@ -48,7 +37,7 @@ class WebhookActions{
     .thenApply( (webhooks) ->{
       JDA jda = container.getJDA();
       for(Webhook webhook: webhooks){
-        if(OwnWebhook(jda, webhook)){
+        if(WebhookUtil.OwnWebhook(jda, webhook)){
           return webhook;
         }
       }
