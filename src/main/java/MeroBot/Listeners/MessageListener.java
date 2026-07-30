@@ -36,9 +36,12 @@ public class MessageListener extends ListenerAdapter{
     if(!EmojiDetector.HasEmoji(content)){
       return;
     }
-    String outmessage = EmojiDetector.ReplaceEmoji(event.getJDA(), event.getGuild(), content);
-    System.out.println(outmessage);
     // at this point there is an unhandled emoji in the message
+    String outmessage = EmojiDetector.ReplaceEmoji(event.getJDA(), event.getGuild(), content);
+    if(outmessage.equals(content)){
+      return;
+    }
+    // only if all checks fail
     WebhookActions.CreateWebhookIfNotOwnAsync(channel)
       .thenCompose((Webhook webhook) -> {
         return WebhookActions.SendMessageAsMemberAsync(channel, member, outmessage);
