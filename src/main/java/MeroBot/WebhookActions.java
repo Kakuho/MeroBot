@@ -53,9 +53,7 @@ public class WebhookActions{
     return ChannelHasOwnWebhookAsync(container)
       .thenCompose((Boolean hasWebhook) ->{
         if(hasWebhook){
-          return CompletableFuture.failedFuture(
-            new IllegalStateException("Webhook already exists")
-          );
+          return CompletableFuture.completedFuture(null);
         }
         else{
           return CreateWebhookAsync(container).submit();
