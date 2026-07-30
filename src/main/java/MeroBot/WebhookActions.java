@@ -18,7 +18,7 @@ import java.util.concurrent.CompletableFuture;
 //  Assumptions:
 //    - For each channel, MeroBot creates one and only one webhook
 
-class WebhookActions{
+public class WebhookActions{
   static public CompletableFuture<Boolean> ChannelHasOwnWebhookAsync(IWebhookContainer container){
     return container.retrieveWebhooks().submit()
     .thenApply( (webhooks) ->{
