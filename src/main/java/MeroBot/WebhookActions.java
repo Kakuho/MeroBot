@@ -1,6 +1,7 @@
 package MeroBot;
 
 import MeroBot.MemberUtil;
+import MeroBot.WebhookUtil;
 
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.channel.attribute.IWebhookContainer;
@@ -13,6 +14,9 @@ import net.dv8tion.jda.api.requests.restaction.WebhookAction;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+
+//  Assumptions:
+//    - For each channel, MeroBot creates one and only one webhook
 
 class WebhookActions{
   static public boolean OwnWebhook(JDA jda, Webhook webhook){
@@ -39,10 +43,6 @@ class WebhookActions{
     });
   }
 
-  static public String GetWebhookName(IWebhookContainer container){
-    return "Merobot_" + container.getId();
-  }
-
   static public CompletableFuture<Webhook> GetWebhookAsync(IWebhookContainer container){
     return container.retrieveWebhooks().submit()
     .thenApply( (webhooks) ->{
@@ -57,7 +57,7 @@ class WebhookActions{
   }
 
   static public WebhookAction CreateWebhookAsync(IWebhookContainer container){
-    return container.createWebhook(GetWebhookName(container));
+    return container.createWebhook(WebhookUtil.GetWebhookName(container));
   }
 
   static public CompletableFuture<Webhook> CreateWebhookIfNotOwnAsync(IWebhookContainer container){
@@ -71,6 +71,16 @@ class WebhookActions{
         else{
           return CreateWebhookAsync(container).submit();
         }
+      });
+  }
+
+  static public CompletableFuture<Void> DeleteWebhookAsync(IWebhookContainer container){
+    return GetWebhookAsync(container)
+      .thenCompose((Webhook webhook) -> {
+        if(webhook != null){
+          container.deleteWebhookById(webhook.getId()).submit();
+        }
+        return CompletableFuture.completedFuture(null);
       });
   }
 
