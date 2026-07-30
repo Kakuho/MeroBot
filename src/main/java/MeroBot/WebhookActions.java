@@ -1,10 +1,13 @@
 package MeroBot;
 
+import MeroBot.MemberUtil;
+
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.channel.attribute.IWebhookContainer;
 import net.dv8tion.jda.api.entities.Webhook;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.requests.RestAction;
 import net.dv8tion.jda.api.requests.restaction.WebhookAction;
 
@@ -12,7 +15,6 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 class WebhookActions{
-
   static public boolean OwnWebhook(JDA jda, Webhook webhook){
     User selfUser = jda.getSelfUser();
     User webhookOwner = webhook.getOwnerAsUser();
@@ -86,6 +88,26 @@ class WebhookActions{
       })
       .thenCompose((Webhook webhook) ->{
         return webhook.sendMessage(message).submit();
+      });
+  }
+
+  static public CompletableFuture<Message> SendMessageAsMemberAsync(IWebhookContainer container, Member member, String message){
+    return ChannelHasOwnWebhookAsync(container)
+      .thenCompose((Boolean hasWebhook) -> {
+        if(!hasWebhook){
+          return CompletableFuture.failedFuture(
+            new IllegalStateException("Webhook doesn't exist for this channel")
+          );
+        }
+        else{
+          return GetWebhookAsync(container);
+        }
+      })
+      .thenCompose((Webhook webhook) ->{
+        return webhook.sendMessage(message)
+                      .setUsername(MemberUtil.GetDisplayName(member))
+                      .setAvatarUrl(MemberUtil.GetAvatarUrl(member))
+                      .submit();
       });
   }
 }
