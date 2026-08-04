@@ -2,6 +2,7 @@ package MeroBot.Listeners;
 
 import MeroBot.EmojiDetector;
 import MeroBot.WebhookActions;
+import MeroBot.WebhookUtil;
 
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
@@ -10,6 +11,7 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.Webhook;
+import net.dv8tion.jda.api.entities.channel.attribute.IWebhookContainer;
 import net.dv8tion.jda.api.events.StatusChangeEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.JDA.Status;
@@ -28,11 +30,10 @@ public class MessageListener extends ListenerAdapter{
     if(event.isWebhookMessage()){
       return;
     }
-    TextChannel channel = event.getChannel().asTextChannel();
+    IWebhookContainer container = WebhookUtil.ConvertChannelToWebhookContainer(event.getChannel());
     Message message = event.getMessage();
     String content = message.getContentRaw();
-    User user = event.getAuthor();
-    Member member = event.getGuild().getMemberById(user.getId());
+    Member member = event.getMember();
     if(!EmojiDetector.HasEmoji(content)){
       return;
     }
@@ -42,13 +43,13 @@ public class MessageListener extends ListenerAdapter{
       return;
     }
     // only if all checks fail
-    WebhookActions.CreateWebhookIfNotOwnAsync(channel)
+    WebhookActions.CreateWebhookIfNotOwnAsync(container)
       .thenCompose((Webhook webhook) -> {
-        return WebhookActions.SendMessageAsMemberAsync(channel, member, outmessage);
+        return WebhookActions.SendMessageAsMemberAsync(container, member, outmessage);
       })
       .whenComplete( (s, error) ->{
         if(error != null){
-
+          return;
         }
       });
   }
