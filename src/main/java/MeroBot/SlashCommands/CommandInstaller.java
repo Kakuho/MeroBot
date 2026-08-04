@@ -1,7 +1,7 @@
 package MeroBot.SlashCommands;
 
 import MeroBot.SlashCommands.RewriteMessageCommand;
-import MeroBot.SlashCommands.MakeGifCommand;
+import MeroBot.SlashCommands.SendGifCommand;
 
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
@@ -12,7 +12,7 @@ import net.dv8tion.jda.api.requests.GatewayIntent;
 public class CommandInstaller{
   static public JDABuilder Install(JDABuilder builder){
     return builder.addEventListeners(new RewriteMessageCommand())
-                  .addEventListeners(new MakeGifCommand());
+                  .addEventListeners(new SendGifCommand());
 
   }
 
@@ -20,7 +20,7 @@ public class CommandInstaller{
     bot.updateCommands().addCommands(
       Commands.slash(RewriteMessageCommand.COMMAND_NAME, "Rewrites the message")
               .addOption(OptionType.STRING, "message", "the message to rewrite", true),
-      Commands.slash(MakeGifCommand.COMMAND_NAME, "Makes a gif from an emoji")
+      Commands.slash(SendGifCommand.COMMAND_NAME, "Makes a gif from an emoji")
               .addOption(OptionType.STRING, "emoji", "the name of the emoji to make a gif", true)
     ).queue();
   }
