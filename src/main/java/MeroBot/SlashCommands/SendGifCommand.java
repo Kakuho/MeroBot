@@ -9,7 +9,7 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.utils.ImageFormat;
 
 public class SendGifCommand extends ListenerAdapter{
-  static public final String COMMAND_NAME = "makegif";
+  static public final String COMMAND_NAME = "sendgif";
 
   @Override
   public void onSlashCommandInteraction(SlashCommandInteractionEvent event){
