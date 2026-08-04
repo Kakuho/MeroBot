@@ -1,6 +1,5 @@
 package MeroBot;
 
-
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.emoji.RichCustomEmoji;
 import net.dv8tion.jda.api.entities.Guild;
@@ -34,6 +33,21 @@ public class EmojiUtil{
       if(foundEmojis.size() >= 1){
         return foundEmojis.get(0);
       }
+    }
+    return null;
+  }
+
+  static public RichCustomEmoji GetEmoji(JDA jda, Guild sourceGuild, String emojiName){
+    // First tries to get the emoji from the sourceGuild, if it fails, it tries 
+    // to get the emoji from other servers. 
+    RichCustomEmoji emoji = null;
+    emoji = GetEmojiFromGuild(sourceGuild, emojiName);
+    if(emoji != null){
+      return emoji;
+    }
+    emoji = GetEmojiFromOtherServers(jda, emojiName);
+    if(emoji != null){
+      return emoji;
     }
     return null;
   }
