@@ -16,11 +16,14 @@ public class SendGifCommand extends ListenerAdapter{
     if(!event.getName().equals(COMMAND_NAME)){
       return;
     }
-    Guild guild = event.getGuild();
     String emojiName = event.getOption("emoji").getAsString();
-    RichCustomEmoji emoji = EmojiUtil.GetEmojiFromGuild(guild, emojiName);
+    RichCustomEmoji emoji = EmojiUtil.GetEmoji(event.getJDA(), event.getGuild(), emojiName);
     if(emoji == null){
       event.reply("Sorry... I could not find an emoji with that name").setEphemeral(true).queue();
+      return;
+    }
+    if(emoji.isAnimated() != true){
+      event.reply("Sorry... the emoji is not animated").setEphemeral(true).queue();
       return;
     }
     String gifUrl = emoji.getImageUrl(ImageFormat.GIF);
