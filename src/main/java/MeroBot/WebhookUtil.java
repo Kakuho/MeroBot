@@ -6,6 +6,7 @@ import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.ChannelType;
 import net.dv8tion.jda.api.entities.channel.attribute.IWebhookContainer;
 import net.dv8tion.jda.api.entities.channel.unions.MessageChannelUnion;
+import net.dv8tion.jda.api.entities.channel.concrete.ThreadChannel;
 
 public class WebhookUtil{
   static public boolean OwnWebhook(JDA jda, Webhook webhook){
@@ -54,4 +55,18 @@ public class WebhookUtil{
     }
     return null;
   }
+
+  static public IWebhookContainer GetWebhookContainer(ThreadChannel thread){
+    var union = thread.getParentChannel();
+    if(union.getType() == ChannelType.NEWS){
+      IWebhookContainer container = union.asNewsChannel();
+      return container;
+    }
+    else if(union.getType() == ChannelType.TEXT){
+      IWebhookContainer container = union.asTextChannel();
+      return container;
+    }
+    return null;
+  }
+
 }
