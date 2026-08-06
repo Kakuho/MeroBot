@@ -65,6 +65,7 @@ public class MessageListener extends ListenerAdapter{
     future.whenComplete((m, error) -> {
       if(error != null){
       }
+      message.delete().queue();
     });
   }
 }
