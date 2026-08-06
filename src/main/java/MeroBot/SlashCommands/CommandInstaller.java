@@ -2,6 +2,8 @@ package MeroBot.SlashCommands;
 
 import MeroBot.SlashCommands.RewriteMessageCommand;
 import MeroBot.SlashCommands.SendGifCommand;
+import MeroBot.SlashCommands.HelpCommand;
+import MeroBot.SlashCommands.ReactCommand;
 
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
@@ -12,8 +14,9 @@ import net.dv8tion.jda.api.requests.GatewayIntent;
 public class CommandInstaller{
   static public JDABuilder Install(JDABuilder builder){
     return builder.addEventListeners(new RewriteMessageCommand())
-                  .addEventListeners(new SendGifCommand());
-
+                  .addEventListeners(new SendGifCommand())
+                  .addEventListeners(new ReactCommand())
+                  .addEventListeners(new HelpCommand());
   }
 
   static public void InstallCommandsAsync(JDA bot){
@@ -21,7 +24,11 @@ public class CommandInstaller{
       Commands.slash(RewriteMessageCommand.COMMAND_NAME, "Rewrites the message")
               .addOption(OptionType.STRING, "message", "the message to rewrite", true),
       Commands.slash(SendGifCommand.COMMAND_NAME, "Makes a gif from an emoji")
-              .addOption(OptionType.STRING, "emoji", "the name of the emoji to make a gif", true)
+              .addOption(OptionType.STRING, "emoji", "the name of the emoji to make a gif", true),
+      Commands.slash(HelpCommand.COMMAND_NAME, "Sends a text regarding how to use the bot"),
+      Commands.slash(ReactCommand.COMMAND_NAME, "Reacts to the message with the given emoji")
+              .addOption(OptionType.STRING, "message_id", "the id of the message to react to", true)
+              .addOption(OptionType.STRING, "emoji", "the name of the emoji to be used", true)
     ).queue();
   }
 }
