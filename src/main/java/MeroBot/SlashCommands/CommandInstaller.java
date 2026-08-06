@@ -5,6 +5,7 @@ import MeroBot.SlashCommands.SendGifCommand;
 import MeroBot.SlashCommands.HelpCommand;
 import MeroBot.SlashCommands.ReactCommand;
 import MeroBot.SlashCommands.UseableEmojisCommand;
+import MeroBot.SlashCommands.QueryEmojiCommand;
 
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
@@ -18,6 +19,7 @@ public class CommandInstaller{
                   .addEventListeners(new SendGifCommand())
                   .addEventListeners(new ReactCommand())
                   .addEventListeners(new UseableEmojisCommand())
+                  .addEventListeners(new QueryEmojiCommand())
                   .addEventListeners(new HelpCommand());
   }
 
@@ -31,7 +33,9 @@ public class CommandInstaller{
       Commands.slash(ReactCommand.COMMAND_NAME, "Reacts to the message with the given emoji")
               .addOption(OptionType.STRING, "message_id", "the id of the message to react to", true)
               .addOption(OptionType.STRING, "emoji", "the name of the emoji to be used", true),
-      Commands.slash(UseableEmojisCommand.COMMAND_NAME, "Send information regarding all useable emojis")
+      Commands.slash(UseableEmojisCommand.COMMAND_NAME, "Send information regarding all useable emojis"),
+      Commands.slash(QueryEmojiCommand.COMMAND_NAME, "Sends informationr regarding a emoji")
+              .addOption(OptionType.STRING, "emoji", "the emoji to be queries", true)
     ).queue();
   }
 }
