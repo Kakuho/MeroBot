@@ -12,6 +12,7 @@ import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.Webhook;
 import net.dv8tion.jda.api.entities.channel.attribute.IWebhookContainer;
+import net.dv8tion.jda.api.entities.channel.concrete.ThreadChannel;
 import net.dv8tion.jda.api.events.StatusChangeEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.JDA.Status;
@@ -22,6 +23,23 @@ import java.util.concurrent.CompletableFuture;
 // the user's message via that webhook if an emoji is detected
 
 public class MessageListener extends ListenerAdapter{
+
+  static private CompletableFuture<Message> SendToChannelAsync(IWebhookContainer container, String content, Member member){
+    return WebhookActions.CreateWebhookIfNotOwnAsync(container)
+      .thenCompose((Webhook webhook) -> WebhookActions.SendMessageAsMemberAsync(container, member, content));
+  }
+
+  static private CompletableFuture<Message> SendToThreadAsync(ThreadChannel thread, String content, Member member){
+    IWebhookContainer container = WebhookUtil.GetWebhookContainer(thread);
+    if(container != null){
+      return WebhookActions.CreateWebhookIfNotOwnAsync(container)
+        .thenCompose((Webhook webhook) -> WebhookActions.SendMessageAsMemberAsync(thread, member, content));
+    }
+    else{
+      return null;
+    }
+  }
+
   @Override
   public void onMessageReceived(MessageReceivedEvent event){
     if(event.getAuthor().isBot()){
@@ -30,7 +48,6 @@ public class MessageListener extends ListenerAdapter{
     if(event.isWebhookMessage()){
       return;
     }
-    IWebhookContainer container = WebhookUtil.ConvertChannelToWebhookContainer(event.getChannel());
     Message message = event.getMessage();
     String content = message.getContentRaw();
     Member member = event.getMember();
@@ -42,15 +59,17 @@ public class MessageListener extends ListenerAdapter{
     if(outmessage.equals(content)){
       return;
     }
-    // only if all checks fail
-    WebhookActions.CreateWebhookIfNotOwnAsync(container)
-      .thenCompose((Webhook webhook) -> {
-        return WebhookActions.SendMessageAsMemberAsync(container, member, outmessage);
-      })
-      .whenComplete( (s, error) ->{
-        if(error != null){
-          return;
-        }
-      });
+    IWebhookContainer container = WebhookUtil.ConvertChannelToWebhookContainer(event.getChannel());
+    CompletableFuture<Message> future = null;
+    if(container != null){
+      future = SendToChannelAsync(container, outmessage, member);
+    }
+    else{
+      future = SendToThreadAsync(event.getChannel().asThreadChannel(), outmessage, member);
+    }
+    future.whenComplete((m, error) -> {
+      if(error != null){
+      }
+    });
   }
 }
