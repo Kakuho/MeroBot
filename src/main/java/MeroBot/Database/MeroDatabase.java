@@ -21,7 +21,7 @@ public class MeroDatabase{
 
   static public Connection GetConnection() throws SQLException{ return cpool.GetConnection();} 
 
-  record IgnoredUser(String userId,  boolean ignored, Date dateAdded) { }
+  public record IgnoredUser(String userId,  boolean ignored, Date dateAdded) { }
 
   private static List<IgnoredUser> ExtractIgnoredUsers(PreparedStatement pst){
     try(ResultSet rs = pst.executeQuery()){
@@ -53,6 +53,78 @@ public class MeroDatabase{
     }
     catch(SQLException exception){
       return null;
+    }
+  }
+
+  private static IgnoredUser ExtractIgnoredUser(PreparedStatement pst){
+    try(ResultSet rs = pst.executeQuery()){
+      System.out.println("Trying to execute ExtractIgnoredUser");
+      if(!rs.next()){
+        return null;
+      }
+      IgnoredUser user = new IgnoredUser(
+          rs.getString(1),
+          rs.getBoolean(2),
+          rs.getDate(3)
+      );
+      return user;
+    }
+    catch(SQLException exception){
+      System.out.println("ExtractIgnoredUser - SQL EXCEPTION: " + exception);
+      return null;
+    }
+  }
+
+  public static boolean AddIgnoredUser(String userId){
+    String query = "insert into ignored_user(user_id, ignored) values(?, 'true');";
+    try(Connection con = GetConnection();
+        PreparedStatement pst = con.prepareStatement(query);
+    ){
+      pst.setString(1, userId);
+      if(pst.executeUpdate() >= 1){
+        return true;
+      }
+      else{
+        return false;
+      }
+    }
+    catch(SQLException exception){
+      System.out.println("AddIgnoredUser - SQL EXCEPTION: " + exception);
+      return false;
+    }
+  }
+
+  public static IgnoredUser GetIgnoredUser(String userId){
+    String query = "select * from ignored_user where user_id = ?;";
+    try(Connection con = GetConnection();
+        PreparedStatement pst = con.prepareStatement(query);
+    ){
+      pst.setString(1, userId);
+      return ExtractIgnoredUser(pst);
+    }
+    catch(SQLException exception){
+      System.out.println("GetIgnoredUser - SQL EXCEPTION: " + exception);
+      return null;
+    }
+  }
+
+  public static boolean SetIgnoredUser(String userId, boolean ignored){
+    String query = "update ignored_user set ignored = ? where user_id = ?;";
+    try(Connection con = GetConnection();
+        PreparedStatement pst = con.prepareStatement(query);
+    ){
+      pst.setBoolean(1, ignored);
+      pst.setString(2, userId);
+      if(pst.executeUpdate() >= 1){
+        return true;
+      }
+      else{
+        return false;
+      }
+    }
+    catch(SQLException exception){
+      System.out.println("GetIgnoredUser - SQL EXCEPTION: " + exception);
+      return false;
     }
   }
 }
