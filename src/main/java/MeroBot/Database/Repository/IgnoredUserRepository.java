@@ -1,6 +1,7 @@
 package MeroBot.Database.Repository;
 
 import MeroBot.Database.MeroDatabase;
+import MeroBot.Database.Models.IgnoredUser;
 
 import java.util.List;
 import java.util.ArrayList;
@@ -12,8 +13,6 @@ import java.sql.Connection;
 import java.sql.SQLException;
 
 public class IgnoredUserRepository{
-  public record IgnoredUser(String userId,  boolean ignored, Date dateAdded) { }
-
   public IgnoredUserRepository(){
 
   }
