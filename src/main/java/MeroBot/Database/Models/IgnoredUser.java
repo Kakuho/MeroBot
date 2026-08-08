@@ -9,18 +9,18 @@ import java.util.Date;
 */
 
 public class IgnoredUser{
-  private int userId;
+  private String userId;
   private boolean ignored;
   private Date dateAdded;
 
-  public IgnoredUser(int userId, boolean ignored, Date dateAdded){
+  public IgnoredUser(String userId, boolean ignored, Date dateAdded){
     this.userId = userId;
     this.ignored = ignored;
     this.dateAdded = dateAdded;
   }
 
-  public int GetUserId(){return this.userId;}
-  public void SetUserid(int userId){this.userId = userId;}
+  public String GetUserId(){return this.userId;}
+  public void SetUserid(String userId){this.userId = userId;}
 
   public boolean GetIgnored(){return this.ignored;}
   public void SetIgnored(boolean ignored){this.ignored = ignored;}
