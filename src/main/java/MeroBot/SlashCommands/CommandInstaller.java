@@ -7,6 +7,8 @@ import MeroBot.SlashCommands.ReactCommand;
 import MeroBot.SlashCommands.UseableEmojisCommand;
 import MeroBot.SlashCommands.QueryEmojiCommand;
 
+import MeroBot.SlashCommands.Ignore.IgnoreCommand;
+
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
@@ -20,6 +22,7 @@ public class CommandInstaller{
                   .addEventListeners(new ReactCommand())
                   .addEventListeners(new UseableEmojisCommand())
                   .addEventListeners(new QueryEmojiCommand())
+                  .addEventListeners(new IgnoreCommand())
                   .addEventListeners(new HelpCommand());
   }
 
@@ -35,7 +38,8 @@ public class CommandInstaller{
               .addOption(OptionType.STRING, "emoji", "the name of the emoji to be used", true),
       Commands.slash(UseableEmojisCommand.COMMAND_NAME, "Send information regarding all useable emojis"),
       Commands.slash(QueryEmojiCommand.COMMAND_NAME, "Sends informationr regarding a emoji")
-              .addOption(OptionType.STRING, "emoji", "the emoji to be queries", true)
+              .addOption(OptionType.STRING, "emoji", "the emoji to be queries", true),
+      Commands.slash(IgnoreCommand.COMMAND_NAME, "toggle ignore")
     ).queue();
   }
 }
