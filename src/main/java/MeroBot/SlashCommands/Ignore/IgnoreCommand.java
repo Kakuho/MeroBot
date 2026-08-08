@@ -1,6 +1,6 @@
 package MeroBot.SlashCommands.Ignore;
 
-import MeroBot.Database.MeroDatabase;
+import MeroBot.Database.Repository.IgnoredUserRepository;
 
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
@@ -9,6 +9,8 @@ import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEve
 
 public class IgnoreCommand extends ListenerAdapter{
   static public final String COMMAND_NAME = "ignore";
+  private IgnoredUserRepository repo = new IgnoredUserRepository();
+
 
   @Override
   public void onSlashCommandInteraction(SlashCommandInteractionEvent event){
@@ -17,17 +19,15 @@ public class IgnoreCommand extends ListenerAdapter{
     }
     event.deferReply().setEphemeral(true).queue();
     String userId = event.getMember().getId();
-    System.out.println("id: " + userId);
-    var ignoredUser = MeroDatabase.GetIgnoredUser(userId);
+    var ignoredUser = repo.GetIgnoredUser(userId);
     if(ignoredUser == null){
-      System.out.println("user was null");
-      MeroDatabase.AddIgnoredUser(userId);
+      repo.AddIgnoredUser(userId);
       event.getHook().sendMessage("Mero will ignore your messages amero!")
                      .queue();
       return;
     }
-    boolean newIgnore = !ignoredUser.ignored();
-    MeroDatabase.SetIgnoredUser(userId, newIgnore);
+    boolean newIgnore = !ignoredUser.GetIgnored();
+    repo.SetIgnoredUser(userId, newIgnore);
     if(newIgnore == true){
       event.getHook().sendMessage("Mero will ignore your messages mero!")
                      .queue();
