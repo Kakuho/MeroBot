@@ -86,4 +86,30 @@ public class RoleRepository{
     }
   }
 
+  private boolean IsRoleAdminExtractor(PreparedStatement pst){
+      try(ResultSet rs = pst.executeQuery()){
+      if(!rs.next()){
+        return false;
+      }
+      return rs.getBoolean(1);
+    }
+    catch(SQLException exception){
+      System.out.println("ExtractRole - SQL EXCEPTION: " + exception);
+      return false;
+    }
+  }
+
+  public boolean IsRoleAdmin(String value){
+    String query = "select is_admin from role where value = ?;";
+    try(Connection con = MeroDatabase.GetConnection();
+        PreparedStatement pst = con.prepareStatement(query);
+    ){
+      pst.setString(1, value);
+      return IsRoleAdminExtractor(pst);
+    }
+    catch(SQLException exception){
+      System.out.println("SetRoleAdmin - SQL EXCEPTION: " + exception);
+      return false;
+    }
+  }
 }
