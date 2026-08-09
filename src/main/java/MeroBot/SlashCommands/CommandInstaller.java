@@ -9,6 +9,7 @@ import MeroBot.SlashCommands.QueryEmojiCommand;
 
 import MeroBot.SlashCommands.Ignore.IgnoreCommand;
 import MeroBot.SlashCommands.Ignore.IgnoreUserCommand;
+import MeroBot.SlashCommands.Ignore.IgnoreChannelCommand;
 
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
@@ -25,6 +26,7 @@ public class CommandInstaller{
                   .addEventListeners(new QueryEmojiCommand())
                   .addEventListeners(new IgnoreCommand())
                   .addEventListeners(new IgnoreUserCommand())
+                  .addEventListeners(new IgnoreChannelCommand())
                   .addEventListeners(new HelpCommand());
   }
 
@@ -43,7 +45,9 @@ public class CommandInstaller{
               .addOption(OptionType.STRING, "emoji", "the emoji to be queries", true),
       Commands.slash(IgnoreCommand.COMMAND_NAME, "toggle ignore"),
       Commands.slash(IgnoreUserCommand.COMMAND_NAME, "toggle ignore for a user")
-              .addOption(OptionType.STRING, "user_id", "the id of the user to ignore", true)
+              .addOption(OptionType.STRING, "user_id", "the id of the user to ignore", true),
+      Commands.slash(IgnoreChannelCommand.COMMAND_NAME, "toggle ignore for a channel")
+              .addOption(OptionType.STRING, "channel_id", "the id of the channel to ignore", true)
     ).queue();
   }
 }
