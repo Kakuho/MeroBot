@@ -3,6 +3,8 @@ package MeroBot.Listeners;
 import MeroBot.EmojiDetector;
 import MeroBot.WebhookActions;
 import MeroBot.WebhookUtil;
+import MeroBot.Database.Repository.IgnoredUserRepository;
+import MeroBot.Database.Models.IgnoredUser;
 
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.entities.Message;
@@ -18,6 +20,7 @@ import java.util.concurrent.CompletableFuture;
 // the user's message via that webhook if an emoji is detected
 
 public class MessageListener extends ListenerAdapter{
+  static private IgnoredUserRepository repo = new IgnoredUserRepository();
 
   static private CompletableFuture<Message> SendToChannelAsync(IWebhookContainer container, String content, Member member){
     return WebhookActions.CreateWebhookIfNotOwnAsync(container)
@@ -35,17 +38,28 @@ public class MessageListener extends ListenerAdapter{
     }
   }
 
-  @Override
-  public void onMessageReceived(MessageReceivedEvent event){
+  static private boolean PassesInitialChecks(MessageReceivedEvent event, Member member){
     if(event.getAuthor().isBot()){
-      return;
+      return false;
     }
     if(event.isWebhookMessage()){
+      return false;
+    }
+    IgnoredUser user = repo.GetIgnoredUser(member.getId());
+    if(user != null && user.GetIgnored() == true){
+      return false;
+    }
+    return true;
+  }
+
+  @Override
+  public void onMessageReceived(MessageReceivedEvent event){
+    Member member = event.getMember();
+    if(!PassesInitialChecks(event, member)){
       return;
     }
     Message message = event.getMessage();
     String content = message.getContentRaw();
-    Member member = event.getMember();
     if(!EmojiDetector.HasEmoji(content)){
       return;
     }
