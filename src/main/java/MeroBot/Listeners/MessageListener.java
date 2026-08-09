@@ -5,6 +5,8 @@ import MeroBot.WebhookActions;
 import MeroBot.WebhookUtil;
 import MeroBot.Database.Repository.IgnoredUserRepository;
 import MeroBot.Database.Models.IgnoredUser;
+import MeroBot.Database.Repository.IgnoredChannelRepository;
+import MeroBot.Database.Models.IgnoredChannel;
 
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.entities.Message;
@@ -20,7 +22,8 @@ import java.util.concurrent.CompletableFuture;
 // the user's message via that webhook if an emoji is detected
 
 public class MessageListener extends ListenerAdapter{
-  static private IgnoredUserRepository repo = new IgnoredUserRepository();
+  static private IgnoredUserRepository ignoredUserRepo = new IgnoredUserRepository();
+  static private IgnoredChannelRepository ignoredChannelRepo = new IgnoredChannelRepository();
 
   static private CompletableFuture<Message> SendToChannelAsync(IWebhookContainer container, String content, Member member){
     return WebhookActions.CreateWebhookIfNotOwnAsync(container)
@@ -45,8 +48,12 @@ public class MessageListener extends ListenerAdapter{
     if(event.isWebhookMessage()){
       return false;
     }
-    IgnoredUser user = repo.GetIgnoredUser(member.getId());
+    IgnoredUser user = ignoredUserRepo.GetIgnoredUser(member.getId());
     if(user != null && user.GetIgnored() == true){
+      return false;
+    }
+    IgnoredChannel channel = ignoredChannelRepo.GetIgnoredChannel(event.getGuildChannel().getId());
+    if(channel != null && channel.GetIgnored() == true){
       return false;
     }
     return true;
