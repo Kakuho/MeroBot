@@ -31,11 +31,12 @@ public class IgnoreChannelCommand extends ListenerAdapter{
   }
 
   static private void DoReply(SlashCommandInteractionEvent event, String channelId, boolean ignoreValue){
+    String channelName = event.getGuild().getGuildChannelById(channelId).getName();
     if(ignoreValue == true){
-      event.getHook().sendMessage("Mero will start ignoring that channel mero!!").queue();
+      event.getHook().sendMessage("Mero will start ignoring channel " + channelName + " mero!!").queue();
     }
     else{
-      event.getHook().sendMessage("Mero will stop ignoring that channel mero!!").queue();
+      event.getHook().sendMessage("Mero will stop ignoring channel " + channelName + " mero!!").queue();
     }
   }
 
