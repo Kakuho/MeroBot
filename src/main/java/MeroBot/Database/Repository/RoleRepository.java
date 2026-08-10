@@ -13,7 +13,7 @@ public class RoleRepository{
 
   }
 
-  public boolean AddRole(String value, boolean isAdmin){
+  public boolean AddRole(String value, boolean isAdmin) throws SQLException{
     String query = "insert into role(value, is_admin) values(?, ?);";
     try(Connection con = MeroDatabase.GetConnection();
         PreparedStatement pst = con.prepareStatement(query);
@@ -29,11 +29,11 @@ public class RoleRepository{
     }
     catch(SQLException exception){
       System.out.println("AddRole - SQL EXCEPTION: " + exception);
-      return false;
+      throw exception;
     }
   }
 
-  private Role ExtractRole(PreparedStatement pst){
+  private Role ExtractRole(PreparedStatement pst) throws SQLException{
     try(ResultSet rs = pst.executeQuery()){
       if(!rs.next()){
         return null;
@@ -48,11 +48,11 @@ public class RoleRepository{
     }
     catch(SQLException exception){
       System.out.println("ExtractRole - SQL EXCEPTION: " + exception);
-      return null;
+      throw exception;
     }
   }
 
-  public Role GetRole(String value){
+  public Role GetRole(String value) throws SQLException{
     String query = "select * from role where value = ?;";
     try(Connection con = MeroDatabase.GetConnection();
         PreparedStatement pst = con.prepareStatement(query);
@@ -62,11 +62,11 @@ public class RoleRepository{
     }
     catch(SQLException exception){
       System.out.println("GetRole - SQL EXCEPTION: " + exception);
-      return null;
+      throw exception;
     }
   }
 
-  public boolean SetRoleAdmin(String value, boolean isAdmin){
+  public boolean SetRoleAdmin(String value, boolean isAdmin) throws SQLException{
     String query = "update role set is_admin = ? where value = ?;";
     try(Connection con = MeroDatabase.GetConnection();
         PreparedStatement pst = con.prepareStatement(query);
@@ -82,11 +82,11 @@ public class RoleRepository{
     }
     catch(SQLException exception){
       System.out.println("SetRoleAdmin - SQL EXCEPTION: " + exception);
-      return false;
+      throw exception;
     }
   }
 
-  private boolean IsRoleAdminExtractor(PreparedStatement pst){
+  private boolean IsRoleAdminExtractor(PreparedStatement pst) throws SQLException{
       try(ResultSet rs = pst.executeQuery()){
       if(!rs.next()){
         return false;
@@ -95,11 +95,11 @@ public class RoleRepository{
     }
     catch(SQLException exception){
       System.out.println("ExtractRole - SQL EXCEPTION: " + exception);
-      return false;
+      throw exception;
     }
   }
 
-  public boolean IsRoleAdmin(String value){
+  public boolean IsRoleAdmin(String value) throws SQLException{
     String query = "select is_admin from role where value = ?;";
     try(Connection con = MeroDatabase.GetConnection();
         PreparedStatement pst = con.prepareStatement(query);
@@ -109,7 +109,7 @@ public class RoleRepository{
     }
     catch(SQLException exception){
       System.out.println("SetRoleAdmin - SQL EXCEPTION: " + exception);
-      return false;
+      throw exception;
     }
   }
 }

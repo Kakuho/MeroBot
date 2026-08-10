@@ -15,7 +15,7 @@ public class IgnoredChannelRepository{
 
   }
 
-  private IgnoredChannel ExtractIgnoredChannel(PreparedStatement pst){
+  private IgnoredChannel ExtractIgnoredChannel(PreparedStatement pst) throws SQLException{
     try(ResultSet rs = pst.executeQuery()){
       if(!rs.next()){
         return null;
@@ -29,11 +29,11 @@ public class IgnoredChannelRepository{
     }
     catch(SQLException exception){
       System.out.println("ExtractIgnoredChannel - SQL EXCEPTION: " + exception);
-      return null;
+      throw exception;
     }
   }
 
-  public boolean AddIgnoredChannel(String channelId){
+  public boolean AddIgnoredChannel(String channelId) throws SQLException{
     String query = "insert into ignored_channel(channel_id, ignored) values(?, 'true');";
     try(Connection con = MeroDatabase.GetConnection();
         PreparedStatement pst = con.prepareStatement(query);
@@ -48,11 +48,11 @@ public class IgnoredChannelRepository{
     }
     catch(SQLException exception){
       System.out.println("AddIgnoredChannel - SQL EXCEPTION: " + exception);
-      return false;
+      throw exception;
     }
   }
 
-  public IgnoredChannel GetIgnoredChannel(String channelId){
+  public IgnoredChannel GetIgnoredChannel(String channelId) throws SQLException{
     String query = "select * from ignored_channel where channel_id = ?;";
     try(Connection con = MeroDatabase.GetConnection();
         PreparedStatement pst = con.prepareStatement(query);
@@ -62,11 +62,11 @@ public class IgnoredChannelRepository{
     }
     catch(SQLException exception){
       System.out.println("GetIgnoredChannel - SQL EXCEPTION: " + exception);
-      return null;
+      throw exception;
     }
   }
 
-  public boolean SetIgnoredChannel(String channelId, boolean ignored){
+  public boolean SetIgnoredChannel(String channelId, boolean ignored) throws SQLException{
     String query = "update ignored_channel set ignored = ? where channel_id = ?;";
     try(Connection con = MeroDatabase.GetConnection();
         PreparedStatement pst = con.prepareStatement(query);
@@ -82,7 +82,7 @@ public class IgnoredChannelRepository{
     }
     catch(SQLException exception){
       System.out.println("GetIgnoredChannel - SQL EXCEPTION: " + exception);
-      return false;
+      throw exception;
     }
   }
 }
