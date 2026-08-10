@@ -20,15 +20,20 @@ public class IgnoreUserCommand extends ListenerAdapter{
   private static IgnoredUserRepository ignoredUserRepo = new IgnoredUserRepository();
   private static RoleRepository roleRepo = new RoleRepository();
 
-  static private boolean MemberIsAdmin(Member member){
+  static private boolean MemberIsAdmin(Member member) throws SQLException{
     // there really should be a more efficient way for this other than the O(n) loop...
-    List<Role> roles = member.getRoles();
-    for(Role role: roles){
-      if(roleRepo.IsRoleAdmin(role.getName())){
-        return true;
+    try{
+      List<Role> roles = member.getRoles();
+      for(Role role: roles){
+        if(roleRepo.IsRoleAdmin(role.getName())){
+          return true;
+        }
       }
+      return false;
     }
-    return false;
+    catch(SQLException e){
+      throw e;
+    }
   }
 
   static private void DoReply(SlashCommandInteractionEvent event, String userId, boolean ignoreValue){
