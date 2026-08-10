@@ -11,13 +11,14 @@ import java.sql.ResultSet;
 import java.sql.PreparedStatement;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.sql.SQLTransientConnectionException;
 
 public class IgnoredUserRepository{
   public IgnoredUserRepository(){
 
   }
 
-  private List<IgnoredUser> ExtractIgnoredUsers(PreparedStatement pst){
+  private List<IgnoredUser> ExtractIgnoredUsers(PreparedStatement pst) throws SQLException{
     try(ResultSet rs = pst.executeQuery()){
       List<IgnoredUser> users = new ArrayList<>();
       while (rs.next()) {
@@ -31,11 +32,11 @@ public class IgnoredUserRepository{
       return users;
     }
     catch(SQLException exception){
-      return null;
+      throw exception;
     }
   }
 
-  public List<IgnoredUser> GetIgnoredUsers(){
+  public List<IgnoredUser> GetIgnoredUsers() throws SQLException{
     // the public facing method performs preparedstatement setup, the private method for extraction
     // just extracts the results from the result set
     String SQL_QUERY = "select * from ?;";
@@ -46,11 +47,11 @@ public class IgnoredUserRepository{
       return ExtractIgnoredUsers(pst);
     }
     catch(SQLException exception){
-      return null;
+      throw exception;
     }
   }
 
-  private IgnoredUser ExtractIgnoredUser(PreparedStatement pst){
+  private IgnoredUser ExtractIgnoredUser(PreparedStatement pst) throws SQLException{
     try(ResultSet rs = pst.executeQuery()){
       if(!rs.next()){
         return null;
@@ -63,11 +64,12 @@ public class IgnoredUserRepository{
       return user;
     }
     catch(SQLException exception){
-      return null;
+      System.out.println(exception);
+      throw exception;
     }
   }
 
-  public boolean AddIgnoredUser(String userId){
+  public boolean AddIgnoredUser(String userId) throws SQLException{
     String query = "insert into ignored_user(user_id, ignored) values(?, 'true');";
     try(Connection con = MeroDatabase.GetConnection();
         PreparedStatement pst = con.prepareStatement(query);
@@ -81,11 +83,12 @@ public class IgnoredUserRepository{
       }
     }
     catch(SQLException exception){
-      return false;
+      System.out.println(exception);
+      throw exception;
     }
   }
 
-  public IgnoredUser GetIgnoredUser(String userId){
+  public IgnoredUser GetIgnoredUser(String userId) throws SQLException{
     String query = "select * from ignored_user where user_id = ?;";
     try(Connection con = MeroDatabase.GetConnection();
         PreparedStatement pst = con.prepareStatement(query);
@@ -94,11 +97,12 @@ public class IgnoredUserRepository{
       return ExtractIgnoredUser(pst);
     }
     catch(SQLException exception){
-      return null;
+      System.out.println(exception);
+      throw exception;
     }
   }
 
-  public boolean SetIgnoredUser(String userId, boolean ignored){
+  public boolean SetIgnoredUser(String userId, boolean ignored) throws SQLException{
     String query = "update ignored_user set ignored = ? where user_id = ?;";
     try(Connection con = MeroDatabase.GetConnection();
         PreparedStatement pst = con.prepareStatement(query);
@@ -113,7 +117,8 @@ public class IgnoredUserRepository{
       }
     }
     catch(SQLException exception){
-      return false;
+      System.out.println(exception);
+      throw exception;
     }
   }
 }
