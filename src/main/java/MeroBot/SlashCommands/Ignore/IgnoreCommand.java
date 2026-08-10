@@ -8,6 +8,7 @@ import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEve
 import com.zaxxer.hikari.pool.HikariPool;
 
 import java.lang.ExceptionInInitializerError;
+import java.sql.SQLException;
 
 // probably can put more info here 
 
@@ -15,13 +16,13 @@ public class IgnoreCommand extends ListenerAdapter{
   static public final String COMMAND_NAME = "ignore";
   private IgnoredUserRepository repo = new IgnoredUserRepository();
 
-  void HandleInitialisationException(ExceptionInInitializerError e, SlashCommandInteractionEvent event){
-    if(e.getCause() instanceof HikariPool.PoolInitializationException){
-      event.getHook().sendMessage("Meroron failed to connect to the database mero")
+  void HandleSqlException(SQLException e, SlashCommandInteractionEvent event){
+    if(e instanceof java.sql.SQLTransientConnectionException){
+      event.getHook().sendMessage("Meroron failed to connect to the database mero, could the database be offline mero?")
                      .queue();
     }
-    else{
-      event.getHook().sendMessage("Meroron ran into an error mero")
+    else if(e instanceof java.sql.SQLNonTransientConnectionException){
+      event.getHook().sendMessage("Meroron failed to connect to the database mero, could the database be offline mero?")
                      .queue();
     }
   }
@@ -57,8 +58,8 @@ public class IgnoreCommand extends ListenerAdapter{
         DoReply(ignoredValue, event);
       }
     }
-    catch(ExceptionInInitializerError e){
-      HandleInitialisationException(e, event);
+    catch(SQLException e){
+      HandleSqlException(e, event);
     }
   }
 }
