@@ -1,5 +1,7 @@
 package MeroBot;
 
+import MeroBot.Database.MeroDatabase;
+
 import MeroBot.Config;
 import MeroBot.Listeners.ListenerInstaller;
 import MeroBot.SlashCommands.CommandInstaller;
@@ -20,8 +22,9 @@ public class App {
     }
 
     public static void main(String[] args) {
-        Config.InitConfig();
-        JDA bot = MeroBotBuilder().build();
-        CommandInstaller.InstallCommandsAsync(bot);
+      Config.InitConfig();
+      MeroDatabase.StartDatabase();
+      JDA bot = MeroBotBuilder().build();
+      CommandInstaller.InstallCommandsAsync(bot);
     }
 }
