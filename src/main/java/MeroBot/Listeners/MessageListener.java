@@ -17,6 +17,7 @@ import net.dv8tion.jda.api.entities.channel.concrete.ThreadChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.concurrent.CompletableFuture;
+import java.sql.SQLException;
 
 // Core message listener, will create a webhook if its not created yet, and post 
 // the user's message via that webhook if an emoji is detected
@@ -48,13 +49,18 @@ public class MessageListener extends ListenerAdapter{
     if(event.isWebhookMessage()){
       return false;
     }
-    IgnoredUser user = ignoredUserRepo.GetIgnoredUser(member.getId());
-    if(user != null && user.GetIgnored() == true){
-      return false;
+    try{
+      IgnoredUser user = ignoredUserRepo.GetIgnoredUser(member.getId());
+      if(user != null && user.GetIgnored() == true){
+        return false;
+      }
+      IgnoredChannel channel = ignoredChannelRepo.GetIgnoredChannel(event.getGuildChannel().getId());
+      if(channel != null && channel.GetIgnored() == true){
+        return false;
+      }
     }
-    IgnoredChannel channel = ignoredChannelRepo.GetIgnoredChannel(event.getGuildChannel().getId());
-    if(channel != null && channel.GetIgnored() == true){
-      return false;
+    catch(SQLException e){
+      // should log the error
     }
     return true;
   }
