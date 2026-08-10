@@ -11,6 +11,7 @@ import net.dv8tion.jda.api.entities.Role;
 
 import java.util.List;
 import java.lang.NumberFormatException;
+import java.sql.SQLException;
 
 // Permissions: Admin only
 
@@ -18,6 +19,17 @@ public class IgnoreUserCommand extends ListenerAdapter{
   static public final String COMMAND_NAME = "ignore_user";
   private static IgnoredUserRepository ignoredUserRepo = new IgnoredUserRepository();
   private static RoleRepository roleRepo = new RoleRepository();
+
+  void HandleSqlException(SQLException e, SlashCommandInteractionEvent event){
+    if(e instanceof java.sql.SQLTransientConnectionException){
+      event.getHook().sendMessage("Meroron failed to connect to the database mero, could the database be offline mero?")
+                     .queue();
+    }
+    else if(e instanceof java.sql.SQLNonTransientConnectionException){
+      event.getHook().sendMessage("Meroron failed to connect to the database mero, could the database be offline mero?")
+                     .queue();
+    }
+  }
 
   static private boolean MemberIsAdmin(Member member){
     // there really should be a more efficient way for this other than the O(n) loop...
@@ -45,32 +57,37 @@ public class IgnoreUserCommand extends ListenerAdapter{
       return;
     }
     event.deferReply().setEphemeral(true).queue();
-    String userId = event.getOption("user_id").getAsString();
     try{
-      if(event.getGuild().getMemberById(userId) == null){
-        event.getHook().sendMessage("Sorry the user with the id " + userId + " does not exist mero!").queue();
+      String userId = event.getOption("user_id").getAsString();
+      try{
+        if(event.getGuild().getMemberById(userId) == null){
+          event.getHook().sendMessage("Sorry the user with the id " + userId + " does not exist mero!").queue();
+          return;
+        }
+      }
+      catch(NumberFormatException e){
+          event.getHook().sendMessage("Sorry that id is invalid mero!").queue();
+          return;
+      }
+      if(!MemberIsAdmin(event.getMember())){
+        // should this be logged so admins can see if there's anyone suspiciously using this command?
+        event.getHook().sendMessage("Sorry you cannot use that command, you're not an admin mero!").queue();
         return;
       }
+      boolean ignoredValue = true;
+      IgnoredUser user = ignoredUserRepo.GetIgnoredUser(userId);
+      if(user == null){
+        ignoredValue = true;
+        ignoredUserRepo.AddIgnoredUser(userId);
+      }
+      else{
+        ignoredValue = !user.GetIgnored();
+        ignoredUserRepo.SetIgnoredUser(userId, ignoredValue);
+      }
+      DoReply(event, userId, ignoredValue);
     }
-    catch(NumberFormatException e){
-        event.getHook().sendMessage("Sorry that id is invalid mero!").queue();
-        return;
+    catch(SQLException e){
+      HandleSqlException(e, event);
     }
-    if(!MemberIsAdmin(event.getMember())){
-      // should this be logged so admins can see if there's anyone suspiciously using this command?
-      event.getHook().sendMessage("Sorry you cannot use that command, you're not an admin mero!").queue();
-      return;
-    }
-    boolean ignoredValue = true;
-    IgnoredUser user = ignoredUserRepo.GetIgnoredUser(userId);
-    if(user == null){
-      ignoredValue = true;
-      ignoredUserRepo.AddIgnoredUser(userId);
-    }
-    else{
-      ignoredValue = !user.GetIgnored();
-      ignoredUserRepo.SetIgnoredUser(userId, ignoredValue);
-    }
-    DoReply(event, userId, ignoredValue);
   }
 }
