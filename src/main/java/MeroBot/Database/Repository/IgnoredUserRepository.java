@@ -52,7 +52,6 @@ public class IgnoredUserRepository{
 
   private IgnoredUser ExtractIgnoredUser(PreparedStatement pst){
     try(ResultSet rs = pst.executeQuery()){
-      System.out.println("Trying to execute ExtractIgnoredUser");
       if(!rs.next()){
         return null;
       }
@@ -64,7 +63,6 @@ public class IgnoredUserRepository{
       return user;
     }
     catch(SQLException exception){
-      System.out.println("ExtractIgnoredUser - SQL EXCEPTION: " + exception);
       return null;
     }
   }
@@ -83,7 +81,6 @@ public class IgnoredUserRepository{
       }
     }
     catch(SQLException exception){
-      System.out.println("AddIgnoredUser - SQL EXCEPTION: " + exception);
       return false;
     }
   }
@@ -97,7 +94,6 @@ public class IgnoredUserRepository{
       return ExtractIgnoredUser(pst);
     }
     catch(SQLException exception){
-      System.out.println("GetIgnoredUser - SQL EXCEPTION: " + exception);
       return null;
     }
   }
@@ -117,7 +113,6 @@ public class IgnoredUserRepository{
       }
     }
     catch(SQLException exception){
-      System.out.println("GetIgnoredUser - SQL EXCEPTION: " + exception);
       return false;
     }
   }
