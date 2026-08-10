@@ -20,17 +20,6 @@ public class IgnoreUserCommand extends ListenerAdapter{
   private static IgnoredUserRepository ignoredUserRepo = new IgnoredUserRepository();
   private static RoleRepository roleRepo = new RoleRepository();
 
-  void HandleSqlException(SQLException e, SlashCommandInteractionEvent event){
-    if(e instanceof java.sql.SQLTransientConnectionException){
-      event.getHook().sendMessage("Meroron failed to connect to the database mero, could the database be offline mero?")
-                     .queue();
-    }
-    else if(e instanceof java.sql.SQLNonTransientConnectionException){
-      event.getHook().sendMessage("Meroron failed to connect to the database mero, could the database be offline mero?")
-                     .queue();
-    }
-  }
-
   static private boolean MemberIsAdmin(Member member){
     // there really should be a more efficient way for this other than the O(n) loop...
     List<Role> roles = member.getRoles();
@@ -51,24 +40,37 @@ public class IgnoreUserCommand extends ListenerAdapter{
     }
   }
 
+  void HandleSqlException(SQLException e, SlashCommandInteractionEvent event){
+    if(e instanceof java.sql.SQLTransientConnectionException){
+      event.getHook().sendMessage("Meroron failed to connect to the database mero, could the database be offline mero?")
+                     .queue();
+    }
+    else if(e instanceof java.sql.SQLNonTransientConnectionException){
+      event.getHook().sendMessage("Meroron failed to connect to the database mero, could the database be offline mero?")
+                     .queue();
+    }
+  }
+
   @Override
   public void onSlashCommandInteraction(SlashCommandInteractionEvent event){
     if(!event.getName().equals(COMMAND_NAME)){
       return;
     }
     event.deferReply().setEphemeral(true).queue();
+    String userId = event.getOption("user_id").getAsString();
+    // user id checking
     try{
-      String userId = event.getOption("user_id").getAsString();
-      try{
-        if(event.getGuild().getMemberById(userId) == null){
-          event.getHook().sendMessage("Sorry the user with the id " + userId + " does not exist mero!").queue();
-          return;
-        }
+      if(event.getGuild().getMemberById(userId) == null){
+        event.getHook().sendMessage("Sorry the user with the id " + userId + " does not exist mero!").queue();
+        return;
       }
-      catch(NumberFormatException e){
-          event.getHook().sendMessage("Sorry that id is invalid mero!").queue();
-          return;
-      }
+    }
+    catch(NumberFormatException e){
+      event.getHook().sendMessage("Sorry that id is invalid mero!").queue();
+      return;
+    }
+    // Start of actual logic
+    try{
       if(!MemberIsAdmin(event.getMember())){
         // should this be logged so admins can see if there's anyone suspiciously using this command?
         event.getHook().sendMessage("Sorry you cannot use that command, you're not an admin mero!").queue();
