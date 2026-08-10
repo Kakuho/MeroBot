@@ -26,6 +26,17 @@ public class IgnoreCommand extends ListenerAdapter{
     }
   }
 
+  void DoReply(boolean ignoredValue, SlashCommandInteractionEvent event){
+    if(ignoredValue == true){
+      event.getHook().sendMessage("Mero will ignore your messages mero!")
+                     .queue();
+    }
+    else{
+      event.getHook().sendMessage("Mero will start reposting your messages mero")
+                     .queue();
+    }
+  }
+
   @Override
   public void onSlashCommandInteraction(SlashCommandInteractionEvent event){
     try{
@@ -35,21 +46,15 @@ public class IgnoreCommand extends ListenerAdapter{
       event.deferReply().setEphemeral(true).queue();
       String userId = event.getMember().getId();
       var ignoredUser = repo.GetIgnoredUser(userId);
+      boolean ignoredValue = true;
       if(ignoredUser == null){
         repo.AddIgnoredUser(userId);
-        event.getHook().sendMessage("Mero will ignore your messages amero!")
-                       .queue();
-        return;
-      }
-      boolean newIgnore = !ignoredUser.GetIgnored();
-      repo.SetIgnoredUser(userId, newIgnore);
-      if(newIgnore == true){
-        event.getHook().sendMessage("Mero will ignore your messages mero!")
-                       .queue();
+        DoReply(ignoredValue, event);
       }
       else{
-        event.getHook().sendMessage("Mero will start reposting your messages mero")
-                       .queue();
+        ignoredValue = !ignoredUser.GetIgnored();
+        repo.SetIgnoredUser(userId, ignoredValue);
+        DoReply(ignoredValue, event);
       }
     }
     catch(ExceptionInInitializerError e){
