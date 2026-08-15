@@ -13,12 +13,16 @@ import java.util.List;
 import java.lang.NumberFormatException;
 import java.sql.SQLException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 // Permissions: Admin only
 
 public class IgnoreChannelCommand extends ListenerAdapter{
   static public final String COMMAND_NAME = "ignore_channel";
   private static IgnoredChannelRepository ignoredChannelRepo = new IgnoredChannelRepository();
   private static RoleRepository roleRepo = new RoleRepository();
+  private static final Logger logger = LoggerFactory.getLogger(IgnoreChannelCommand.class);
 
   static private boolean MemberIsAdmin(Member member) throws SQLException{
     // there really should be a more efficient way for this other than the O(n) loop...
@@ -57,6 +61,7 @@ public class IgnoreChannelCommand extends ListenerAdapter{
     }
   }
 
+  /*
   @Override
   public void onSlashCommandInteraction(SlashCommandInteractionEvent event){
     if(!event.getName().equals(COMMAND_NAME)){
@@ -67,7 +72,8 @@ public class IgnoreChannelCommand extends ListenerAdapter{
     // input channel_id checking
     try{
       if(event.getGuild().getGuildChannelById(channelId) == null){
-        event.getHook().sendMessage("Sorry the channel with the id " + channelId + " does not exist mero!").queue();
+        event.getHook().sendMessage("Sorry the channel with the id " + channelId + " does not exist mero!")
+        .queue();
         return;
       }
     }
@@ -96,6 +102,97 @@ public class IgnoreChannelCommand extends ListenerAdapter{
     }
     catch(SQLException e){
       HandleSqlException(e, event);
+    }
+  }
+  */
+
+  private record ChannelExistReturnValue(boolean numberException, boolean exists){}
+
+  static private ChannelExistReturnValue ChannelExists(SlashCommandInteractionEvent event, String channelId){
+    try{
+      if(event.getGuild().getGuildChannelById(channelId) == null){
+        event.getHook().sendMessage("Sorry the channel with the id " + channelId + " does not exist mero!")
+        .queue();
+        return new ChannelExistReturnValue(false, false);
+      }
+    }
+    catch(NumberFormatException e){
+        event.getHook().sendMessage("Sorry that id is invalid mero!").queue();
+        return new ChannelExistReturnValue(true, false);
+    }
+    return new ChannelExistReturnValue(false, true);
+  }
+
+  private enum FailureCondition{
+    ChannelExistError,      
+    SnowflakeIdInvalid,
+    AdminPrivilageError
+  }
+
+  static private void HandleFailure(SlashCommandInteractionEvent event, FailureCondition condition, String channelId){
+    switch(condition){
+      case ChannelExistError:
+        event.getHook().sendMessage("Sorry the user with the id " + channelId + " does not exist mero!").queue();
+        break;
+      case SnowflakeIdInvalid:
+        event.getHook().sendMessage("Sorry that id is invalid mero!").queue();
+        break;
+      case AdminPrivilageError:
+        event.getHook().sendMessage("Sorry you cannot use that command, you're not an admin mero!").queue();
+        break;
+    }
+    logger.error("{author_id: '{}', input: [channelId: '{}'], reason: '{}'}",
+      event.getMember().getId(),
+      channelId,
+      condition.toString()
+    );
+  }
+
+  @Override
+  public void onSlashCommandInteraction(SlashCommandInteractionEvent event){
+    if(!event.getName().equals(COMMAND_NAME)){
+      return;
+    }
+    event.deferReply().setEphemeral(true).queue();
+    String channelId = event.getOption("channel_id").getAsString();
+    // input channel_id checking
+    var channelExist = ChannelExists(event, channelId);
+    if(channelExist.numberException()){
+      HandleFailure(event, FailureCondition.SnowflakeIdInvalid, channelId);
+    }
+    else if(!channelExist.exists()){
+      HandleFailure(event, FailureCondition.ChannelExistError, channelId);
+    }
+    else{
+      // Start of command logic
+      try{
+        if(!MemberIsAdmin(event.getMember())){
+          HandleFailure(event, FailureCondition.AdminPrivilageError, channelId);
+          return;
+        }
+        boolean ignoredValue = true;
+        boolean channelAdded = false;
+        IgnoredChannel channel = ignoredChannelRepo.GetIgnoredChannel(channelId);
+        if(channel == null){
+          ignoredValue = true;
+          ignoredChannelRepo.AddIgnoredChannel(channelId);
+          channelAdded = true;
+        }
+        else{
+          ignoredValue = !channel.GetIgnored();
+          ignoredChannelRepo.SetIgnoredChannel(channelId, ignoredValue);
+        }
+        DoReply(event, channelId, ignoredValue);
+        logger.info("{author_id: '{}', input: [channelId: '{}'], output: [ignored: '{}'], comments: '{}'}",
+          event.getMember().getId(),
+          channelId,
+          ignoredValue ? "ignored" : "unignored",
+          channelAdded ? "channel added to database": "channel already existed in database"
+        );
+      }
+      catch(SQLException e){
+        HandleSqlException(e, event);
+      }
     }
   }
 }
