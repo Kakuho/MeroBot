@@ -13,12 +13,16 @@ import java.util.List;
 import java.lang.NumberFormatException;
 import java.sql.SQLException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 // Permissions: Admin only
 
 public class IgnoreUserCommand extends ListenerAdapter{
-  static public final String COMMAND_NAME = "ignore_user";
+  public static final String COMMAND_NAME = "ignore_user";
   private static IgnoredUserRepository ignoredUserRepo = new IgnoredUserRepository();
   private static RoleRepository roleRepo = new RoleRepository();
+  private static final Logger logger = LoggerFactory.getLogger(IgnoreUserCommand.class);
 
   static private boolean MemberIsAdmin(Member member) throws SQLException{
     // there really should be a more efficient way for this other than the O(n) loop...
@@ -45,15 +49,61 @@ public class IgnoreUserCommand extends ListenerAdapter{
     }
   }
 
-  void HandleSqlException(SQLException e, SlashCommandInteractionEvent event){
+  static private void HandleSqlException(SQLException e, SlashCommandInteractionEvent event){
+    boolean dbConnectionFailure = false;
     if(e instanceof java.sql.SQLTransientConnectionException){
-      event.getHook().sendMessage("Meroron failed to connect to the database mero, could the database be offline mero?")
-                     .queue();
+      dbConnectionFailure = true;
     }
     else if(e instanceof java.sql.SQLNonTransientConnectionException){
+      dbConnectionFailure = true;
+    }
+    if(dbConnectionFailure){
+      logger.error("{exception: '{}', comments: '{}'}",
+        e,
+        dbConnectionFailure ? "perhaps failed to connect to the database" : ""
+      );
       event.getHook().sendMessage("Meroron failed to connect to the database mero, could the database be offline mero?")
                      .queue();
     }
+  }
+
+  private record ExistReturnValue(boolean exist, boolean numberFormatException){};
+
+  ExistReturnValue MemberExist(SlashCommandInteractionEvent event, String memberId){
+    try{
+      if(event.getGuild().getMemberById(memberId) == null){
+        return new ExistReturnValue(false, false);
+      }
+    }
+    catch(NumberFormatException e){
+      return new ExistReturnValue(false, true);
+    }
+    return new ExistReturnValue(true, false);
+  }
+  
+  private enum FailureCondition{
+    MemberExistError,      
+    SnowflakeIdInvalid,
+    AdminPrivilageError
+  }
+
+  static void HandleFailure(SlashCommandInteractionEvent event, FailureCondition condition, String userId){
+    switch(condition){
+      case MemberExistError:
+        event.getHook().sendMessage("Sorry the user with the id " + userId + " does not exist mero!").queue();
+        break;
+      case SnowflakeIdInvalid:
+        event.getHook().sendMessage("Sorry that id is invalid mero!").queue();
+        break;
+      case AdminPrivilageError:
+        event.getHook().sendMessage("Sorry you cannot use that command, you're not an admin mero!").queue();
+        break;
+    }
+    logger.error("{author_id: '{}', input: [userId: '{}'], reason: '{}'}",
+      event.getMember().getId(),
+      userId,
+      condition.toString()
+    );
   }
 
   @Override
@@ -64,37 +114,46 @@ public class IgnoreUserCommand extends ListenerAdapter{
     event.deferReply().setEphemeral(true).queue();
     String userId = event.getOption("user_id").getAsString();
     // user id checking
-    try{
-      if(event.getGuild().getMemberById(userId) == null){
-        event.getHook().sendMessage("Sorry the user with the id " + userId + " does not exist mero!").queue();
-        return;
-      }
-    }
-    catch(NumberFormatException e){
-      event.getHook().sendMessage("Sorry that id is invalid mero!").queue();
+    var exists = MemberExist(event, userId);
+    if(exists.numberFormatException() == true){
+      HandleFailure(event, FailureCondition.SnowflakeIdInvalid, userId);
       return;
     }
-    // Start of actual logic
-    try{
-      if(!MemberIsAdmin(event.getMember())){
-        // should this be logged so admins can see if there's anyone suspiciously using this command?
-        event.getHook().sendMessage("Sorry you cannot use that command, you're not an admin mero!").queue();
-        return;
-      }
-      boolean ignoredValue = true;
-      IgnoredUser user = ignoredUserRepo.GetIgnoredUser(userId);
-      if(user == null){
-        ignoredValue = true;
-        ignoredUserRepo.AddIgnoredUser(userId);
-      }
-      else{
-        ignoredValue = !user.GetIgnored();
-        ignoredUserRepo.SetIgnoredUser(userId, ignoredValue);
-      }
-      DoReply(event, userId, ignoredValue);
+    else if(exists.exist() == false){
+      HandleFailure(event, FailureCondition.MemberExistError, userId);
+      return;
     }
-    catch(SQLException e){
-      HandleSqlException(e, event);
+    else{
+      // Start of actual logic
+      try{
+        if(!MemberIsAdmin(event.getMember())){
+          HandleFailure(event, FailureCondition.AdminPrivilageError, userId);
+          return;
+        }
+        boolean ignoredValue = true;
+        boolean userAdded = false;
+        IgnoredUser user = ignoredUserRepo.GetIgnoredUser(userId);
+        if(user == null){
+          ignoredValue = true;
+          ignoredUserRepo.AddIgnoredUser(userId);
+          userAdded = true;
+        }
+        else{
+          ignoredValue = !user.GetIgnored();
+          ignoredUserRepo.SetIgnoredUser(userId, ignoredValue);
+          userAdded = false;
+        }
+        DoReply(event, userId, ignoredValue);
+        logger.info("{author_id: '{}', input: [userId: '{}'], output: [ignored: '{}'], comments: '{}'}",
+          event.getMember().getId(),
+          userId,
+          ignoredValue ? "ignored" : "unignored",
+          userAdded ? "user added to database": "user already existed in database"
+        );
+      }
+      catch(SQLException e){
+        HandleSqlException(e, event);
+      }
     }
   }
 }
