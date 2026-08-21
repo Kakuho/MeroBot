@@ -10,8 +10,12 @@ import java.util.ArrayList;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class UseableEmojisCommand extends ListenerAdapter{
   static public final String COMMAND_NAME = "useable_emojis";
+  static private final Logger logger = LoggerFactory.getLogger(UseableEmojisCommand.class);
 
   static private String FormatEmoji(RichCustomEmoji emoji){
     return  emoji.getFormatted() + "  from " + emoji.getGuild().getName();
@@ -47,6 +51,11 @@ public class UseableEmojisCommand extends ListenerAdapter{
           .collect(Collectors.joining())
       );
 
-    combined.thenAccept((list) -> {event.reply(list).queue();});
+    combined.thenAccept((list) -> {
+      logger.info("{author_id: '{}', output: [sent: 'true']",
+          event.getMember().getId()
+      );
+      event.reply(list).queue();
+    });
   }
 }
