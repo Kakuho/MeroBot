@@ -8,7 +8,12 @@ import java.sql.PreparedStatement;
 import java.sql.Connection;
 import java.sql.SQLException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class RoleRepository{
+  final Logger logger = LoggerFactory.getLogger(RoleRepository.class);
+
   public RoleRepository(){
 
   }
@@ -28,7 +33,12 @@ public class RoleRepository{
       }
     }
     catch(SQLException exception){
-      System.out.println("AddRole - SQL EXCEPTION: " + exception);
+      logger.error("input: [query: `{}`, arg1: `{}`, arg2: `{}`], error: `{}`}",
+        query,
+        value,
+        isAdmin,
+        exception
+      );
       throw exception;
     }
   }
@@ -47,7 +57,6 @@ public class RoleRepository{
       return role;
     }
     catch(SQLException exception){
-      System.out.println("ExtractRole - SQL EXCEPTION: " + exception);
       throw exception;
     }
   }
@@ -61,7 +70,12 @@ public class RoleRepository{
       return ExtractRole(pst);
     }
     catch(SQLException exception){
-      System.out.println("GetRole - SQL EXCEPTION: " + exception);
+      logger.error("input: [query: `{}`, arg1: `{}`], error: `{}`}",
+        query,
+        value,
+        exception
+      );
+
       throw exception;
     }
   }
@@ -81,7 +95,12 @@ public class RoleRepository{
       }
     }
     catch(SQLException exception){
-      System.out.println("SetRoleAdmin - SQL EXCEPTION: " + exception);
+      logger.error("input: [query: `{}`, arg1: `{}`, arg2: `{}`], error: `{}`}",
+        query,
+        isAdmin,
+        value,
+        exception
+      );
       throw exception;
     }
   }
@@ -94,7 +113,6 @@ public class RoleRepository{
       return rs.getBoolean(1);
     }
     catch(SQLException exception){
-      System.out.println("ExtractRole - SQL EXCEPTION: " + exception);
       throw exception;
     }
   }
@@ -108,7 +126,11 @@ public class RoleRepository{
       return IsRoleAdminExtractor(pst);
     }
     catch(SQLException exception){
-      System.out.println("SetRoleAdmin - SQL EXCEPTION: " + exception);
+      logger.error("input: [query: `{}`, arg1: `{}`], error: `{}`}",
+        query,
+        value,
+        exception
+      );
       throw exception;
     }
   }
