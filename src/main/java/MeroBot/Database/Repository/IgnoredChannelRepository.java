@@ -8,9 +8,14 @@ import java.sql.PreparedStatement;
 import java.sql.Connection;
 import java.sql.SQLException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 // probably should be made into a generic repository class to avoid repeating code...
 
 public class IgnoredChannelRepository{
+  final Logger logger = LoggerFactory.getLogger(TrackedUserRepository.class);
+
   public IgnoredChannelRepository(){
 
   }
@@ -28,7 +33,6 @@ public class IgnoredChannelRepository{
       return channel;
     }
     catch(SQLException exception){
-      System.out.println("ExtractIgnoredChannel - SQL EXCEPTION: " + exception);
       throw exception;
     }
   }
@@ -47,7 +51,11 @@ public class IgnoredChannelRepository{
       }
     }
     catch(SQLException exception){
-      System.out.println("AddIgnoredChannel - SQL EXCEPTION: " + exception);
+      logger.error("input: [query: `{}`, arg1: `{}`], error: `{}`}",
+        query,
+        channelId,
+        exception
+      );
       throw exception;
     }
   }
@@ -61,7 +69,11 @@ public class IgnoredChannelRepository{
       return ExtractIgnoredChannel(pst);
     }
     catch(SQLException exception){
-      System.out.println("GetIgnoredChannel - SQL EXCEPTION: " + exception);
+      logger.error("input: [query: `{}`, arg1: `{}`], error: `{}`}",
+        query,
+        channelId,
+        exception
+      );
       throw exception;
     }
   }
@@ -81,7 +93,12 @@ public class IgnoredChannelRepository{
       }
     }
     catch(SQLException exception){
-      System.out.println("GetIgnoredChannel - SQL EXCEPTION: " + exception);
+      logger.error("input: [query: `{}`, arg1: `{}`, arg2: `{}`], error: `{}`}",
+        query,
+        ignored,
+        channelId,
+        exception
+      );
       throw exception;
     }
   }
