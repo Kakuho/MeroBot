@@ -1,5 +1,6 @@
 package MeroBot.SlashCommands.Ignore;
 
+import MeroBot.SlashCommands.Ignore.IgnoreUtils;
 import MeroBot.Database.Models.TrackedUser;
 import MeroBot.Database.Repository.TrackedUserRepository;
 import MeroBot.Database.Repository.RoleRepository;
@@ -21,24 +22,7 @@ import org.slf4j.LoggerFactory;
 public class IgnoreUserCommand extends ListenerAdapter{
   public static final String COMMAND_NAME = "ignore_user";
   private static TrackedUserRepository trackedUserRepo = new TrackedUserRepository();
-  private static RoleRepository roleRepo = new RoleRepository();
   private static final Logger logger = LoggerFactory.getLogger(IgnoreUserCommand.class);
-
-  static private boolean MemberIsAdmin(Member member) throws SQLException{
-    // there really should be a more efficient way for this other than the O(n) loop...
-    try{
-      List<Role> roles = member.getRoles();
-      for(Role role: roles){
-        if(roleRepo.IsRoleAdmin(role.getName())){
-          return true;
-        }
-      }
-      return false;
-    }
-    catch(SQLException e){
-      throw e;
-    }
-  }
 
   static private void DoReply(SlashCommandInteractionEvent event, String userId, boolean ignoreValue){
     if(ignoreValue == true){
@@ -126,7 +110,7 @@ public class IgnoreUserCommand extends ListenerAdapter{
     else{
       // Start of actual logic
       try{
-        if(!MemberIsAdmin(event.getMember())){
+        if(!IgnoreUtils.MemberIsAdmin(event.getMember())){
           HandleFailure(event, FailureCondition.AdminPrivilageError, userId);
           return;
         }
