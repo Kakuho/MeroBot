@@ -11,7 +11,12 @@ import java.sql.PreparedStatement;
 import java.sql.Connection;
 import java.sql.SQLException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class TrackedUserRepository{
+  final Logger logger = LoggerFactory.getLogger(TrackedUserRepository.class);
+
   public TrackedUserRepository(){
 
   }
@@ -48,6 +53,11 @@ public class TrackedUserRepository{
       return ExtractTrackedUsers(pst);
     }
     catch(SQLException exception){
+      logger.error("input: [query: `{}`, arg1: `{}`], error: `{}`}",
+        SQL_QUERY,
+        "tracked_user",
+        exception
+      );
       throw exception;
     }
   }
@@ -87,7 +97,13 @@ public class TrackedUserRepository{
       }
     }
     catch(SQLException exception){
-      System.out.println(exception);
+      logger.error("input: [query: `{}`, arg1: `{}`, arg2: `{}`], error: `{}`}",
+        query,
+        userId,
+        ignored,
+        exception
+      );
+
       throw exception;
     }
   }
@@ -108,7 +124,13 @@ public class TrackedUserRepository{
       }
     }
     catch(SQLException exception){
-      System.out.println(exception);
+      logger.error("input: [query: `{}`, arg1: `{}`, arg2: `{}`, arg3: `{}`], error: `{}`}",
+        query,
+        userId,
+        ignored,
+        adminId,
+        exception
+      );
       throw exception;
     }
   }
@@ -123,7 +145,12 @@ public class TrackedUserRepository{
       return ExtractTrackedUser(pst);
     }
     catch(SQLException exception){
-      System.out.println(exception);
+      logger.error("input: [query: `{}`, arg1: `{}`], error: `{}`}",
+        query,
+        userId,
+        exception
+      );
+
       throw exception;
     }
   }
@@ -143,7 +170,13 @@ public class TrackedUserRepository{
       }
     }
     catch(SQLException exception){
-      System.out.println(exception);
+      logger.error("input: [query: `{}`, arg1: `{}`, arg2: `{}`], error: `{}`}",
+        query,
+        ignored,
+        userId,
+        exception
+      );
+
       throw exception;
     }
   }
@@ -165,9 +198,15 @@ public class TrackedUserRepository{
       }
     }
     catch(SQLException exception){
-      System.out.println(exception);
+      logger.error("input: [query: `{}`, arg1: `{}`, arg2: `{}`, arg3: `{}`, arg4: `{}`], error: `{}`}",
+        query,
+        ignored,
+        ignored,
+        adminId,
+        userId,
+        exception
+      );
       throw exception;
     }
   }
-
 }
