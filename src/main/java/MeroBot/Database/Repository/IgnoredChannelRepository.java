@@ -14,7 +14,7 @@ import org.slf4j.LoggerFactory;
 // probably should be made into a generic repository class to avoid repeating code...
 
 public class IgnoredChannelRepository{
-  final Logger logger = LoggerFactory.getLogger(TrackedUserRepository.class);
+  final Logger logger = LoggerFactory.getLogger(IgnoredChannelRepository.class);
 
   public IgnoredChannelRepository(){
 
