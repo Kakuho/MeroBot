@@ -89,11 +89,10 @@ public class SendGifCommand extends ListenerAdapter{
       }
       else{
         event.reply("gif sent").setEphemeral(true).queue();
-        logger.info("{author_id: '{}', input: [emojiName: '{}', channelId: '{}'], output: [sent: 'true'], reason: '{}'}",
+        logger.info("{author_id: '{}', input: [emojiName: '{}', channelId: '{}'], output: [sent: 'true']}",
           event.getMember().getId(),
           emojiName,
-          channel.getId(),
-          error
+          channel.getId()
         );
         return;
       }
