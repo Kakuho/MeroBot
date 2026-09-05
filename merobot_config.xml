@@ -1,0 +1,8 @@
+<MerobotXmlConfig>
+  <statusChannel>
+    INSERT_CHANNEL_SNOWFLAKE_ID_HERE
+  </statusChannel>
+  <botToken>
+    INSERT_TOKEN_HERE
+  </botToken>
+</MerobotXmlConfig>
