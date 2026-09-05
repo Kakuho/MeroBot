@@ -17,8 +17,20 @@ class MerobotXmlConfig{
   @JsonProperty("BotToken")
   private String botToken;
 
+  @JsonProperty("DbUsername")
+  private String dbUsername = "";
+
+  @JsonProperty("DbPassowrd")
+  private String dbPassword = "";
+
+  @JsonProperty("DbPassowrd")
+  private String dbConnectionString = "";
+
   public String GetStatusChannel(){ return this.statusChannel;}
   public String GetBotToken(){ return this.botToken;}
+  public String GetDbUsername(){ return this.dbUsername;}
+  public String GetDbPassword(){ return this.dbPassword;}
+  public String GetDbConnectionString(){ return this.dbConnectionString;}
 }
 
 class NullXmlConfigOptionException extends RuntimeException{
@@ -30,7 +42,18 @@ class NullXmlConfigOptionException extends RuntimeException{
 public class Config{
   static private String StatusChannel = "";
   static private String BotToken = "";
+  static private String DatabaseUsername = "";
+  static private String DatabasePassword = "";
+  static private String DatabaseConnectionString = "";
+  static private boolean Initialised = false;
   static final Logger logger = LoggerFactory.getLogger(Config.class);
+
+  static public String GetStatusChannel(){return Config.StatusChannel;}
+  static public String GetBotToken(){return Config.BotToken;}
+  static public String GetDbUsername(){return Config.DatabaseUsername;}
+  static public String GetDbPassword(){return Config.DatabasePassword;}
+  static public String GetDbConnectionString(){return Config.DatabaseConnectionString;}
+  static public boolean GetInitialised(){return Config.Initialised;}
 
   static public void InitConfig(){
     // first try to read from the environment, only do system environment as fallback
@@ -38,13 +61,13 @@ public class Config{
       InitFromXml();
     }
     catch(IOException exception){
-      logger.info("Failed to initialise configuration values from xml file, reason: IOException");
-      logger.info(exception.getMessage());
+      logger.info("Failed to initialise configuration values from xml file, IOException reason: " + exception.getMessage());
+      logger.info("Trying to initialise from system env...");
       InitFromSysEnv();
     }
     catch(NullXmlConfigOptionException exception){
-      logger.info("Failed to initialise configuration values from xml file, reason: cannot find either bot token or status channel in the config file");
-      logger.info(exception.getMessage());
+      logger.info("Failed to initialise configuration values from xml file, NullXmlConfigOptionException reason: " + exception.getMessage());
+      logger.info("Trying to initialise from system env...");
       InitFromSysEnv();
     }
   }
@@ -59,30 +82,24 @@ public class Config{
     if(configDeserialised.GetBotToken() == null){
       throw new NullXmlConfigOptionException("Bot token not found in xml");
     }
+    if(configDeserialised.GetDbUsername() == null){
+      throw new NullXmlConfigOptionException("Database username not found in xml");
+    }
+    if(configDeserialised.GetDbPassword() == null){
+      throw new NullXmlConfigOptionException("Database password not found in xml");
+    }
+    if(configDeserialised.GetDbConnectionString() == null){
+      throw new NullXmlConfigOptionException("Database connection string not found in xml");
+    }
     Config.StatusChannel = configDeserialised.GetStatusChannel().strip();
     Config.BotToken = configDeserialised.GetBotToken().strip();
+    Config.DatabaseUsername = configDeserialised.GetDbUsername().strip();
+    Config.DatabasePassword = configDeserialised.GetDbPassword().strip();
+    Config.DatabaseConnectionString = configDeserialised.GetDbConnectionString().strip();
   }
 
   static private void InitFromSysEnv(){
-    ReadBotTokenFromEnv();
-    ReadStatusChannelFromEnv();
-  }
-
-  static public void SetStatusChannel(String value){Config.StatusChannel = value;}
-  static public String GetStatusChannel(){return Config.StatusChannel;}
-
-  static public void SetBotToken(String value){Config.BotToken = value;}
-  static public String GetBotToken(){return Config.BotToken;}
-
-  static private void ReadStatusChannelFromEnv(){
-    // Read Status Channel from somewhere
     Config.StatusChannel = System.getenv("status_channel");
-  }
-
-  static private void ReadBotTokenFromEnv(){
-    // Read Status Channel from somewhere
     Config.BotToken = System.getenv("mero_token");
   }
 }
-
-
