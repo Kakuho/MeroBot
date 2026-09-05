@@ -1,19 +1,13 @@
 package MeroBot.Database;
 
-import MeroBot.Database.IConnectionPool;
-import MeroBot.Database.HikariConnectionPool;
+import MeroBot.Config;
 
-import java.util.List;
-
-import com.zaxxer.hikari.pool.HikariPool;
-
-import java.util.ArrayList;
-import java.util.Date;
-
-import java.sql.ResultSet;
-import java.sql.PreparedStatement;
+import java.lang.RuntimeException;
 import java.sql.Connection;
 import java.sql.SQLException;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 // Merodatabase Error cases:
 //
@@ -39,13 +33,19 @@ import java.sql.SQLException;
 
 public class MeroDatabase{
   static private IConnectionPool cpool;
+  static private Logger logger = LoggerFactory.getLogger(MeroDatabase.class);
 
   static public void StartDatabase(){
-    InitConnectionPool();
+    if(!Config.GetInitialised()){
+      throw new RuntimeException("Configuration is not initialised!");
+    }
+    else{
+      InitConnectionPool(Config.GetDbUsername(), Config.GetDbPassword(), Config.GetDbConnectionString());
+    }
   }
 
-  static public void InitConnectionPool(){
-    cpool = new HikariConnectionPool();
+  static public void InitConnectionPool(String username, String password, String connectionString){
+    cpool = new HikariConnectionPool(username, password, connectionString);
   }
 
   static public Connection GetConnection() throws SQLException{ 
@@ -53,7 +53,7 @@ public class MeroDatabase{
       return cpool.GetConnection();
     }
     catch(SQLException e){
-      // log the occured exception
+      logger.error("Failed to initialise the connection pool, reason: " + e.getMessage());
       throw e;
     }
   } 
