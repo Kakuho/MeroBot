@@ -35,11 +35,26 @@ public class MeroDatabase{
   static private IConnectionPool cpool;
   static private Logger logger = LoggerFactory.getLogger(MeroDatabase.class);
 
-  static public void StartDatabase(){
+  static public class DatabaseInitialisationException extends RuntimeException{
+    public DatabaseInitialisationException(String errorMessage){
+      super(errorMessage);
+    }
+  }
+
+  static public void StartDatabase() throws DatabaseInitialisationException{
     if(!Config.GetInitialised()){
-      throw new RuntimeException("Configuration is not initialised!");
+      throw new DatabaseInitialisationException("Configuration is not initialised!");
     }
     else{
+      if(Config.GetDbUsername() == null){
+        throw new DatabaseInitialisationException("MeroDatabase.StartDatabase(): Configuration does not contain a Username Field");
+      }
+      else if(Config.GetDbPassword() == null){
+        throw new DatabaseInitialisationException("MeroDatabase.StartDatabase(): Configuration does not contain a Password Field");
+      }
+      else if(Config.GetDbConnectionString() == null){
+        throw new DatabaseInitialisationException("MeroDatabase.StartDatabase(): Configuration does not contain a Database Connection String Field");
+      }
       InitConnectionPool(Config.GetDbUsername(), Config.GetDbPassword(), Config.GetDbConnectionString());
     }
   }

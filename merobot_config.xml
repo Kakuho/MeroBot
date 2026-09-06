@@ -1,8 +1,18 @@
 <MerobotXmlConfig>
-  <statusChannel>
+  <StatusChannel>
     INSERT_CHANNEL_SNOWFLAKE_ID_HERE
-  </statusChannel>
-  <botToken>
+  </StatusChannel>
+  <BotToken>
     INSERT_TOKEN_HERE
-  </botToken>
+  </BotToken>
+  <!-- Database configuration -->
+  <DbUsername>
+    INSERT_DB_USERNAME_HERE
+  </DbUsername>
+  <DbPassword>
+    INSERT_DB_PASSWORD_HERE
+  </DbPassword>
+  <DbConnectionString>
+    INSERT_DB_CONNECTION_STRING_HERE
+  </DbConnectionString>
 </MerobotXmlConfig>

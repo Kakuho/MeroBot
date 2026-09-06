@@ -20,10 +20,10 @@ class MerobotXmlConfig{
   @JsonProperty("DbUsername")
   private String dbUsername = "";
 
-  @JsonProperty("DbPassowrd")
+  @JsonProperty("DbPassword")
   private String dbPassword = "";
 
-  @JsonProperty("DbPassowrd")
+  @JsonProperty("DbConnectionString")
   private String dbConnectionString = "";
 
   public String GetStatusChannel(){ return this.statusChannel;}
@@ -34,8 +34,8 @@ class MerobotXmlConfig{
 }
 
 class NullXmlConfigOptionException extends RuntimeException{
-  public NullXmlConfigOptionException(String errorMessage) {
-      super(errorMessage);
+  public NullXmlConfigOptionException(String errorMessage){
+    super(errorMessage);
   }
 }
 
@@ -59,6 +59,7 @@ public class Config{
     // first try to read from the environment, only do system environment as fallback
     try{
       InitFromXml();
+      Initialised = true;
     }
     catch(IOException exception){
       logger.info("Failed to initialise configuration values from xml file, IOException reason: " + exception.getMessage());
