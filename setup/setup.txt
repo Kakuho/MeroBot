@@ -1,0 +1,37 @@
+Basic setup guide for merobot
+
+Configuration File merobot_config.xml
+
+the bot looks for a merobot_config.xml file. look at sample_conifg.xml to see how to write merobot_config.xml file
+
+The bot token is required and is placed in the <BotToken> element
+
+The status channel is optional however there will be a few jda exceptions being thrown if you leave it empty.
+You are still required to put a <StatusChannel> xml element in the config file.
+
+As the bot operates on a opt-in tracking, the database fields are required and NOT OPTIONAL. 
+Please note that a postgresql database was used during development. I do not know if a mysql or a mariadb database 
+would work with merobot in its current state
+
+-----------------------------------------------------------------------------------------
+
+Logging File merobot.log
+
+merobot logs events both to the command line and a file called merobot.log
+
+you can periodically delete merobot.log, although its useful to keep handy if there's an error since 
+it can provide hint to reproduce the problem
+
+-----------------------------------------------------------------------------------------
+
+Running via docker
+
+There is a docker compose file here which helps make getting merobot up and running very easy
+
+Run the steps
+
+-----------------------------------------------------------------------------------------
+
+running without docker
+
+without docker you have to install java, maven and postgresql. 
