@@ -1,0 +1,23 @@
+Setup for merobot with native java and postgresql, non dockerised version
+
+native installation
+
+1) - Navigate to github.com/Kakuho/merbot
+2) - Clone it into a local directory
+3) - Install java (i personally have java version "21.0.8" 2025-07-15 LTS). Ensure `java` is accessbile from the cli.
+    You can enter `java -version` to see if you can access java from the cli.
+    3.a) - Linux Package Installation
+      - your linux distro may have a package for java.
+      - e.g, on debian and ubuntu you can do `sudo apt-get install default-jdk` which installs the jdk 21 as a package for you
+    3.b) - Manual Installation
+      - use this website to install the development kit (jdk 21) https://www.oracle.com/uk/java/technologies/downloads/
+      - follow the steps for your respective OS
+4) - Install maven (build system for java). Ensure `mvn` is accessible from the cli.
+    You can enter `mvn -v` on the cli to check if maven is installed. (I personally have Maven 3.6.3)
+    4.a) - Linux Package Installation
+      - your linux distro may have a package for maven.
+      - e.g, on debian and ubuntu you can do `sudo apt-get install maven` which installs the maven package for you
+    4.b) - Manual Installation
+      - use this website to install maven https://maven.apache.org/install.html
+    - You should now be able to run the `compile_run.sh` script in the project root.
+5) - Setting up Postgresql
