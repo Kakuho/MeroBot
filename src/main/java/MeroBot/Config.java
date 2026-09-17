@@ -56,7 +56,8 @@ public class Config{
   static public boolean GetInitialised(){return Config.Initialised;}
 
   static public void InitConfig(){
-    // first try to read from the environment, only do system environment as fallback
+    InitFromSysEnv();
+    /*
     try{
       InitFromXml();
       Initialised = true;
@@ -71,6 +72,7 @@ public class Config{
       logger.info("Trying to initialise from system env...");
       InitFromSysEnv();
     }
+    */
   }
 
   static private void InitFromXml() throws IOException{
@@ -102,5 +104,12 @@ public class Config{
   static private void InitFromSysEnv(){
     Config.StatusChannel = System.getenv("status_channel");
     Config.BotToken = System.getenv("mero_token");
+    Config.StatusChannel = System.getenv("status_channel").strip();
+    Config.BotToken = System.getenv("mero_token").strip();
+    Config.DatabaseUsername = System.getenv("DbUser").strip();
+    Config.DatabasePassword = System.getenv("DbPassword").strip();
+    Config.DatabaseConnectionString = System.getenv("DbConnectionString").strip();
+    Config.Initialised = true;
+    logger.info("Connection String: " + Config.DatabaseConnectionString);
   }
 }
