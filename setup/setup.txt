@@ -26,9 +26,23 @@ it can provide hint to reproduce the problem
 
 Running via docker
 
-There is a docker compose file here which helps make getting merobot up and running very easy
+  First ensure you have the 'Dockerfile' and the 'Merobot.jar' file within the same directory
 
-Run the steps
+    if you would like to build 'Merobot.jar', you must ensure you have maven installed and run 'mvn clean compile
+      assembly:single' from the top level directory
+
+  Then you can build the 'merobot' docker image via 'docker build -t merobot .'
+
+  You will have to configure 'merobot_config.xml' file within the container, you can do this two ways:
+
+    - To change it by attaching a terminal to the container, do 'docker start -i CONTAINER_NAME/ID' replacing CONTAINER_NAME/ID as appropriate. This puts you in 
+      a terminal attached to the container's file system. navigate to '/usr/local/app' and you should see
+      'merobot_config.xml'. change it as appropriately
+
+    - You can also change it before you build the docker image. Simply modify the host's 'merobot_config.xml' and then
+      build the docker image via 'docker build -t merobot .'
+
+There is a docker compose file here which helps make getting merobot up and running very easy
 
 -----------------------------------------------------------------------------------------
 
