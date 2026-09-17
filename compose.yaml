@@ -1,0 +1,27 @@
+services:
+  bot:
+    build: .
+    environment:
+      - mero_token=${mero_token}
+      - status_channel=${status_channel}
+      - DbUser=${DbUser}
+      - DbPassword=${DbPassword}
+      - DbConnectionString=jdbc:postgresql://postgres-service:5432/merobot_db
+    depends_on:
+      postgres-service:
+        condition: service_healthy
+
+  postgres-service:
+    environment:
+      - PGUSER=meroron
+      - POSTGRES_USER=meroron
+      - POSTGRES_PASSWORD=meromeromero
+    image: 
+      postgres:18
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD", "pg_isready"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
