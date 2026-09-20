@@ -21,13 +21,15 @@ public class RewriteMessageCommand extends ListenerAdapter{
     if(!event.getName().equals(COMMAND_NAME)){
       return;
     }
-    User user = event.getUser();
-    Member member = event.getGuild().getMemberById(user.getId());
+    Member member = event.getMember();
     String message = event.getOption("message").getAsString();
-    WebhookActions.SendMessageAsMemberAsync(
-        event.getChannel().asTextChannel(), 
-        member, 
-        message
+    WebhookActions.CreateWebhookIfNotOwnAsync(event.getChannel().asTextChannel())
+    .thenCompose( (webhook) -> 
+      WebhookActions.SendMessageAsMemberAsync(
+          event.getChannel().asTextChannel(), 
+          member, 
+          message
+      )
     )
     .whenComplete( (createdMessage, error) ->{
       if(error != null){
@@ -36,6 +38,7 @@ public class RewriteMessageCommand extends ListenerAdapter{
             event.getMember().getId(),
             message,
             event.getChannel().getId(),
+            error.getMessage(),
             error
           );
       }
