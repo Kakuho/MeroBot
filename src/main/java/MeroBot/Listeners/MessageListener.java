@@ -23,7 +23,7 @@ import java.sql.SQLException;
 // the user's message via that webhook if an emoji is detected
 
 public class MessageListener extends ListenerAdapter{
-  static private UserRepository trackedUserRepo = new UserRepository();
+  static private UserRepository userRepo = new UserRepository();
   static private ChannelRepository channelRepo = new ChannelRepository();
 
   static private CompletableFuture<Message> SendToChannelAsync(IWebhookContainer container, String content, Member member){
@@ -50,7 +50,7 @@ public class MessageListener extends ListenerAdapter{
       return false;
     }
     try{
-      User user = trackedUserRepo.GetUser(member.getId());
+      User user = userRepo.GetUser(member.getId());
       if(user != null && user.GetIgnored() == true){
         return false;
       }

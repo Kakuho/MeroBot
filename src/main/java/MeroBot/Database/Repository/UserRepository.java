@@ -49,13 +49,13 @@ public class UserRepository{
     try(Connection con = MeroDatabase.GetConnection();
         PreparedStatement pst = con.prepareStatement(SQL_QUERY);
     ){
-      pst.setString(0, "tracked_user");
+      pst.setString(0, "user");
       return ExtractUsers(pst);
     }
     catch(SQLException exception){
       logger.error("input: [query: `{}`, arg1: `{}`], error: `{}`}",
         SQL_QUERY,
-        "tracked_user",
+        "user",
         exception
       );
       throw exception;
@@ -83,7 +83,7 @@ public class UserRepository{
   }
 
   public boolean AddUser(String userId, boolean ignored) throws SQLException{
-    String query = "insert into tracked_user(user_id, ignored) values(?, ?);";
+    String query = "insert into user(user_id, ignored) values(?, ?);";
     try(Connection con = MeroDatabase.GetConnection();
         PreparedStatement pst = con.prepareStatement(query);
     ){
@@ -109,7 +109,7 @@ public class UserRepository{
   }
 
   public boolean AddUserAdmin(String userId, boolean ignored, String adminId) throws SQLException{
-    String query = "insert into tracked_user(user_id, ignored, admin_ignored, admin_id) values(?, ?, 'true', ?);";
+    String query = "insert into user(user_id, ignored, admin_ignored, admin_id) values(?, ?, 'true', ?);";
     try(Connection con = MeroDatabase.GetConnection();
         PreparedStatement pst = con.prepareStatement(query);
     ){
@@ -137,7 +137,7 @@ public class UserRepository{
 
 
   public User GetUser(String userId) throws SQLException{
-    String query = "select * from tracked_user where user_id = ?;";
+    String query = "select * from user where user_id = ?;";
     try(Connection con = MeroDatabase.GetConnection();
         PreparedStatement pst = con.prepareStatement(query);
     ){
@@ -156,7 +156,7 @@ public class UserRepository{
   }
 
   public boolean SetUser(String userId, boolean ignored) throws SQLException{
-    String query = "update tracked_user set ignored = ? where user_id = ?;";
+    String query = "update user set ignored = ? where user_id = ?;";
     try(Connection con = MeroDatabase.GetConnection();
         PreparedStatement pst = con.prepareStatement(query);
     ){
@@ -182,7 +182,7 @@ public class UserRepository{
   }
 
   public boolean SetUserAdmin(String userId, boolean ignored, String adminId) throws SQLException{
-    String query = "update tracked_user set ignored = ?, admin_ignored = ?, admin_id = ? where user_id = ?;";
+    String query = "update user set ignored = ?, admin_ignored = ?, admin_id = ? where user_id = ?;";
     try(Connection con = MeroDatabase.GetConnection();
         PreparedStatement pst = con.prepareStatement(query);
     ){

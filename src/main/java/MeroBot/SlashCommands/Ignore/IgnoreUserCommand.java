@@ -21,7 +21,7 @@ import org.slf4j.LoggerFactory;
 
 public class IgnoreUserCommand extends ListenerAdapter{
   public static final String COMMAND_NAME = "ignore_user";
-  private static UserRepository trackedUserRepo = new UserRepository();
+  private static UserRepository userRepo = new UserRepository();
   private static final Logger logger = LoggerFactory.getLogger(IgnoreUserCommand.class);
 
   static private void DoReply(SlashCommandInteractionEvent event, String userId, boolean ignoreValue){
@@ -116,15 +116,15 @@ public class IgnoreUserCommand extends ListenerAdapter{
         }
         boolean ignoredValue = true;
         boolean userAdded = false;
-        User user = trackedUserRepo.GetUser(userId);
+        User user = userRepo.GetUser(userId);
         if(user == null){
           ignoredValue = true;
-          trackedUserRepo.AddUserAdmin(userId, true, event.getMember().getId());
+          userRepo.AddUserAdmin(userId, true, event.getMember().getId());
           userAdded = true;
         }
         else{
           ignoredValue = !user.GetIgnored();
-          trackedUserRepo.SetUserAdmin(userId, ignoredValue, event.getMember().getId());
+          userRepo.SetUserAdmin(userId, ignoredValue, event.getMember().getId());
           userAdded = false;
         }
         DoReply(event, userId, ignoredValue);
