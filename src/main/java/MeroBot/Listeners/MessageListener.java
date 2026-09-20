@@ -3,8 +3,8 @@ package MeroBot.Listeners;
 import MeroBot.EmojiDetector;
 import MeroBot.WebhookActions;
 import MeroBot.WebhookUtil;
-import MeroBot.Database.Repository.TrackedUserRepository;
-import MeroBot.Database.Models.TrackedUser;
+import MeroBot.Database.Repository.UserRepository;
+import MeroBot.Database.Models.User;
 import MeroBot.Database.Repository.IgnoredChannelRepository;
 import MeroBot.Database.Models.IgnoredChannel;
 
@@ -23,7 +23,7 @@ import java.sql.SQLException;
 // the user's message via that webhook if an emoji is detected
 
 public class MessageListener extends ListenerAdapter{
-  static private TrackedUserRepository trackedUserRepo = new TrackedUserRepository();
+  static private UserRepository trackedUserRepo = new UserRepository();
   static private IgnoredChannelRepository ignoredChannelRepo = new IgnoredChannelRepository();
 
   static private CompletableFuture<Message> SendToChannelAsync(IWebhookContainer container, String content, Member member){
@@ -50,7 +50,7 @@ public class MessageListener extends ListenerAdapter{
       return false;
     }
     try{
-      TrackedUser user = trackedUserRepo.GetTrackedUser(member.getId());
+      User user = trackedUserRepo.GetUser(member.getId());
       if(user != null && user.GetIgnored() == true){
         return false;
       }

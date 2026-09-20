@@ -1,7 +1,7 @@
 package MeroBot.Database.Repository;
 
 import MeroBot.Database.MeroDatabase;
-import MeroBot.Database.Models.TrackedUser;
+import MeroBot.Database.Models.User;
 
 import java.util.List;
 import java.util.ArrayList;
@@ -14,18 +14,18 @@ import java.sql.SQLException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class TrackedUserRepository{
-  final Logger logger = LoggerFactory.getLogger(TrackedUserRepository.class);
+public class UserRepository{
+  final Logger logger = LoggerFactory.getLogger(UserRepository.class);
 
-  public TrackedUserRepository(){
+  public UserRepository(){
 
   }
 
-  private List<TrackedUser> ExtractTrackedUsers(PreparedStatement pst) throws SQLException{
+  private List<User> ExtractUsers(PreparedStatement pst) throws SQLException{
     try(ResultSet rs = pst.executeQuery()){
-      List<TrackedUser> users = new ArrayList<>();
+      List<User> users = new ArrayList<>();
       while (rs.next()) {
-        TrackedUser user = new TrackedUser(
+        User user = new User(
             rs.getString(1),
             rs.getBoolean(2),
             rs.getBoolean(3),
@@ -42,7 +42,7 @@ public class TrackedUserRepository{
     }
   }
 
-  public List<TrackedUser> GetTrackedUsers() throws SQLException{
+  public List<User> GetUsers() throws SQLException{
     // the public facing method performs preparedstatement setup, the private method for extraction
     // just extracts the results from the result set
     String SQL_QUERY = "select * from ?;";
@@ -50,7 +50,7 @@ public class TrackedUserRepository{
         PreparedStatement pst = con.prepareStatement(SQL_QUERY);
     ){
       pst.setString(0, "tracked_user");
-      return ExtractTrackedUsers(pst);
+      return ExtractUsers(pst);
     }
     catch(SQLException exception){
       logger.error("input: [query: `{}`, arg1: `{}`], error: `{}`}",
@@ -62,12 +62,12 @@ public class TrackedUserRepository{
     }
   }
 
-  private TrackedUser ExtractTrackedUser(PreparedStatement pst) throws SQLException{
+  private User ExtractUser(PreparedStatement pst) throws SQLException{
     try(ResultSet rs = pst.executeQuery()){
       if(!rs.next()){
         return null;
       }
-      TrackedUser user = new TrackedUser(
+      User user = new User(
           rs.getString(1),
           rs.getBoolean(2),
           rs.getBoolean(3),
@@ -82,7 +82,7 @@ public class TrackedUserRepository{
     }
   }
 
-  public boolean AddTrackedUser(String userId, boolean ignored) throws SQLException{
+  public boolean AddUser(String userId, boolean ignored) throws SQLException{
     String query = "insert into tracked_user(user_id, ignored) values(?, ?);";
     try(Connection con = MeroDatabase.GetConnection();
         PreparedStatement pst = con.prepareStatement(query);
@@ -108,7 +108,7 @@ public class TrackedUserRepository{
     }
   }
 
-  public boolean AddTrackedUserAdmin(String userId, boolean ignored, String adminId) throws SQLException{
+  public boolean AddUserAdmin(String userId, boolean ignored, String adminId) throws SQLException{
     String query = "insert into tracked_user(user_id, ignored, admin_ignored, admin_id) values(?, ?, 'true', ?);";
     try(Connection con = MeroDatabase.GetConnection();
         PreparedStatement pst = con.prepareStatement(query);
@@ -136,13 +136,13 @@ public class TrackedUserRepository{
   }
 
 
-  public TrackedUser GetTrackedUser(String userId) throws SQLException{
+  public User GetUser(String userId) throws SQLException{
     String query = "select * from tracked_user where user_id = ?;";
     try(Connection con = MeroDatabase.GetConnection();
         PreparedStatement pst = con.prepareStatement(query);
     ){
       pst.setString(1, userId);
-      return ExtractTrackedUser(pst);
+      return ExtractUser(pst);
     }
     catch(SQLException exception){
       logger.error("input: [query: `{}`, arg1: `{}`], error: `{}`}",
@@ -155,7 +155,7 @@ public class TrackedUserRepository{
     }
   }
 
-  public boolean SetTrackedUser(String userId, boolean ignored) throws SQLException{
+  public boolean SetUser(String userId, boolean ignored) throws SQLException{
     String query = "update tracked_user set ignored = ? where user_id = ?;";
     try(Connection con = MeroDatabase.GetConnection();
         PreparedStatement pst = con.prepareStatement(query);
@@ -181,7 +181,7 @@ public class TrackedUserRepository{
     }
   }
 
-  public boolean SetTrackedUserAdmin(String userId, boolean ignored, String adminId) throws SQLException{
+  public boolean SetUserAdmin(String userId, boolean ignored, String adminId) throws SQLException{
     String query = "update tracked_user set ignored = ?, admin_ignored = ?, admin_id = ? where user_id = ?;";
     try(Connection con = MeroDatabase.GetConnection();
         PreparedStatement pst = con.prepareStatement(query);

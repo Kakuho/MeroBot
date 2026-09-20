@@ -10,14 +10,14 @@ import java.util.Date;
  date_added    | timestamp without time zone |           |          | LOCALTIMESTAMP(0)
 */
 
-public class TrackedUser{
+public class User{
   private String userId;
   private boolean ignored;
   private boolean adminIgnored;
   private String adminId;
   private Date dateAdded;
 
-  public TrackedUser(String userId, boolean ignored, boolean adminIgnored, String adminId, Date dateAdded){
+  public User(String userId, boolean ignored, boolean adminIgnored, String adminId, Date dateAdded){
     this.userId = userId;
     this.ignored = ignored;
     this.adminIgnored = adminIgnored;

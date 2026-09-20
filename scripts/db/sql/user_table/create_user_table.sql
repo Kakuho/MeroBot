@@ -1,4 +1,4 @@
-create table tracked_user(
+create table user(
   user_id       varchar primary key,
   ignored       boolean default false,
   admin_ignored boolean default false,

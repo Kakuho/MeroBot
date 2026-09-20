@@ -1,8 +1,8 @@
 package MeroBot.SlashCommands.Ignore;
 
 import MeroBot.SlashCommands.Ignore.IgnoreUtils;
-import MeroBot.Database.Models.TrackedUser;
-import MeroBot.Database.Repository.TrackedUserRepository;
+import MeroBot.Database.Models.User;
+import MeroBot.Database.Repository.UserRepository;
 import MeroBot.Database.Repository.RoleRepository;
 
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -21,7 +21,7 @@ import org.slf4j.LoggerFactory;
 
 public class IgnoreUserCommand extends ListenerAdapter{
   public static final String COMMAND_NAME = "ignore_user";
-  private static TrackedUserRepository trackedUserRepo = new TrackedUserRepository();
+  private static UserRepository trackedUserRepo = new UserRepository();
   private static final Logger logger = LoggerFactory.getLogger(IgnoreUserCommand.class);
 
   static private void DoReply(SlashCommandInteractionEvent event, String userId, boolean ignoreValue){
@@ -116,15 +116,15 @@ public class IgnoreUserCommand extends ListenerAdapter{
         }
         boolean ignoredValue = true;
         boolean userAdded = false;
-        TrackedUser user = trackedUserRepo.GetTrackedUser(userId);
+        User user = trackedUserRepo.GetUser(userId);
         if(user == null){
           ignoredValue = true;
-          trackedUserRepo.AddTrackedUserAdmin(userId, true, event.getMember().getId());
+          trackedUserRepo.AddUserAdmin(userId, true, event.getMember().getId());
           userAdded = true;
         }
         else{
           ignoredValue = !user.GetIgnored();
-          trackedUserRepo.SetTrackedUserAdmin(userId, ignoredValue, event.getMember().getId());
+          trackedUserRepo.SetUserAdmin(userId, ignoredValue, event.getMember().getId());
           userAdded = false;
         }
         DoReply(event, userId, ignoredValue);

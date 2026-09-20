@@ -1,7 +1,7 @@
 package MeroBot.SlashCommands.Ignore;
 
 import MeroBot.SlashCommands.Ignore.IgnoreUtils;
-import MeroBot.Database.Repository.TrackedUserRepository;
+import MeroBot.Database.Repository.UserRepository;
 
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
@@ -30,7 +30,7 @@ import java.sql.SQLException;
 
 public class TrackEmojisCommand extends ListenerAdapter{
   static public final String COMMAND_NAME = "track_emojis";
-  private TrackedUserRepository repo = new TrackedUserRepository();
+  private UserRepository repo = new UserRepository();
   final Logger logger = LoggerFactory.getLogger(TrackEmojisCommand.class);
 
   void HandleSqlException(SQLException e, SlashCommandInteractionEvent event){
@@ -70,12 +70,12 @@ public class TrackEmojisCommand extends ListenerAdapter{
       }
       event.deferReply().setEphemeral(true).queue();
       String userId = event.getMember().getId();
-      var user = repo.GetTrackedUser(userId);
+      var user = repo.GetUser(userId);
       boolean ignoredValue = false;
       boolean userExists = false;
       if(user == null){
         userExists = false;
-        repo.AddTrackedUser(userId, false);
+        repo.AddUser(userId, false);
         DoReply(ignoredValue, event);
       }
       else{
@@ -93,7 +93,7 @@ public class TrackEmojisCommand extends ListenerAdapter{
         }
         else{
           // either admin ignored is false, or we're an admin
-          repo.SetTrackedUser(userId, ignoredValue);
+          repo.SetUser(userId, ignoredValue);
           DoReply(ignoredValue, event);
         }
       }
