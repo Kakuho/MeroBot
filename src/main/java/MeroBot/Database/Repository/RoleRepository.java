@@ -106,7 +106,7 @@ public class RoleRepository{
   }
 
   private boolean IsRoleAdminExtractor(PreparedStatement pst) throws SQLException{
-      try(ResultSet rs = pst.executeQuery()){
+    try(ResultSet rs = pst.executeQuery()){
       if(!rs.next()){
         return false;
       }

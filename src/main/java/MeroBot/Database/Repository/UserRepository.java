@@ -49,7 +49,7 @@ public class UserRepository{
     try(Connection con = MeroDatabase.GetConnection();
         PreparedStatement pst = con.prepareStatement(SQL_QUERY);
     ){
-      pst.setString(0, "user");
+      pst.setString(0, "merouser");
       return ExtractUsers(pst);
     }
     catch(SQLException exception){
@@ -83,7 +83,7 @@ public class UserRepository{
   }
 
   public boolean AddUser(String userId, boolean ignored) throws SQLException{
-    String query = "insert into user(user_id, ignored) values(?, ?);";
+    String query = "insert into merouser(user_id, ignored) values(?, ?);";
     try(Connection con = MeroDatabase.GetConnection();
         PreparedStatement pst = con.prepareStatement(query);
     ){
@@ -109,7 +109,7 @@ public class UserRepository{
   }
 
   public boolean AddUserAdmin(String userId, boolean ignored, String adminId) throws SQLException{
-    String query = "insert into user(user_id, ignored, admin_ignored, admin_id) values(?, ?, 'true', ?);";
+    String query = "insert into merouser(user_id, ignored, admin_ignored, admin_id) values(?, ?, 'true', ?);";
     try(Connection con = MeroDatabase.GetConnection();
         PreparedStatement pst = con.prepareStatement(query);
     ){
@@ -135,9 +135,8 @@ public class UserRepository{
     }
   }
 
-
   public User GetUser(String userId) throws SQLException{
-    String query = "select * from user where user_id = ?;";
+    String query = "select * from merouser where user_id = ?;";
     try(Connection con = MeroDatabase.GetConnection();
         PreparedStatement pst = con.prepareStatement(query);
     ){
@@ -156,7 +155,7 @@ public class UserRepository{
   }
 
   public boolean SetUser(String userId, boolean ignored) throws SQLException{
-    String query = "update user set ignored = ? where user_id = ?;";
+    String query = "update merouser set ignored = ? where user_id = ?;";
     try(Connection con = MeroDatabase.GetConnection();
         PreparedStatement pst = con.prepareStatement(query);
     ){
@@ -182,7 +181,7 @@ public class UserRepository{
   }
 
   public boolean SetUserAdmin(String userId, boolean ignored, String adminId) throws SQLException{
-    String query = "update user set ignored = ?, admin_ignored = ?, admin_id = ? where user_id = ?;";
+    String query = "update merouser set ignored = ?, admin_ignored = ?, admin_id = ? where user_id = ?;";
     try(Connection con = MeroDatabase.GetConnection();
         PreparedStatement pst = con.prepareStatement(query);
     ){

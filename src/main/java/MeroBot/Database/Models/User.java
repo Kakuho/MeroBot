@@ -2,13 +2,7 @@ package MeroBot.Database.Models;
 
 import java.util.Date;
 
-/*
- user_id       | character varying           |           | not null | 
- ignored       | boolean                     |           |          | false
- admin_ignored | boolean                     |           |          | false
- admin_id      | boolean                     |           |          | false
- date_added    | timestamp without time zone |           |          | LOCALTIMESTAMP(0)
-*/
+// note that this maps merouser, psql unfortunately does not allow us to use the name user as a relational schema
 
 public class User{
   private String userId;
