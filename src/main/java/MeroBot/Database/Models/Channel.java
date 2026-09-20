@@ -8,12 +8,12 @@ import java.util.Date;
  date_added | timestamp without time zone |           |          | LOCALTIMESTAMP(0)
 */
 
-public class IgnoredChannel{
+public class Channel{
   private String channelId;
   private boolean ignored;
   private Date dateAdded;
 
-  public IgnoredChannel(String channelId, boolean ignored, Date dateAdded){
+  public Channel(String channelId, boolean ignored, Date dateAdded){
     this.channelId = channelId;
     this.ignored = ignored;
     this.dateAdded = dateAdded;

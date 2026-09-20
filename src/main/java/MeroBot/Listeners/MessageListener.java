@@ -5,8 +5,8 @@ import MeroBot.WebhookActions;
 import MeroBot.WebhookUtil;
 import MeroBot.Database.Repository.UserRepository;
 import MeroBot.Database.Models.User;
-import MeroBot.Database.Repository.IgnoredChannelRepository;
-import MeroBot.Database.Models.IgnoredChannel;
+import MeroBot.Database.Repository.ChannelRepository;
+import MeroBot.Database.Models.Channel;
 
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.entities.Message;
@@ -24,7 +24,7 @@ import java.sql.SQLException;
 
 public class MessageListener extends ListenerAdapter{
   static private UserRepository trackedUserRepo = new UserRepository();
-  static private IgnoredChannelRepository ignoredChannelRepo = new IgnoredChannelRepository();
+  static private ChannelRepository channelRepo = new ChannelRepository();
 
   static private CompletableFuture<Message> SendToChannelAsync(IWebhookContainer container, String content, Member member){
     return WebhookActions.CreateWebhookIfNotOwnAsync(container)
@@ -54,7 +54,7 @@ public class MessageListener extends ListenerAdapter{
       if(user != null && user.GetIgnored() == true){
         return false;
       }
-      IgnoredChannel channel = ignoredChannelRepo.GetIgnoredChannel(event.getGuildChannel().getId());
+      Channel channel = channelRepo.GetChannel(event.getGuildChannel().getId());
       if(channel != null && channel.GetIgnored() == true){
         return false;
       }

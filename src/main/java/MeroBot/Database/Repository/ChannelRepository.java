@@ -1,7 +1,7 @@
 package MeroBot.Database.Repository;
 
 import MeroBot.Database.MeroDatabase;
-import MeroBot.Database.Models.IgnoredChannel;
+import MeroBot.Database.Models.Channel;
 
 import java.sql.ResultSet;
 import java.sql.PreparedStatement;
@@ -13,19 +13,19 @@ import org.slf4j.LoggerFactory;
 
 // probably should be made into a generic repository class to avoid repeating code...
 
-public class IgnoredChannelRepository{
-  final Logger logger = LoggerFactory.getLogger(IgnoredChannelRepository.class);
+public class ChannelRepository{
+  final Logger logger = LoggerFactory.getLogger(ChannelRepository.class);
 
-  public IgnoredChannelRepository(){
+  public ChannelRepository(){
 
   }
 
-  private IgnoredChannel ExtractIgnoredChannel(PreparedStatement pst) throws SQLException{
+  private Channel ExtractChannel(PreparedStatement pst) throws SQLException{
     try(ResultSet rs = pst.executeQuery()){
       if(!rs.next()){
         return null;
       }
-      IgnoredChannel channel = new IgnoredChannel(
+      Channel channel = new Channel(
           rs.getString(1),
           rs.getBoolean(2),
           rs.getDate(3)
@@ -37,8 +37,8 @@ public class IgnoredChannelRepository{
     }
   }
 
-  public boolean AddIgnoredChannel(String channelId) throws SQLException{
-    String query = "insert into ignored_channel(channel_id, ignored) values(?, 'true');";
+  public boolean AddChannel(String channelId) throws SQLException{
+    String query = "insert into channel(channel_id, ignored) values(?, 'true');";
     try(Connection con = MeroDatabase.GetConnection();
         PreparedStatement pst = con.prepareStatement(query);
     ){
@@ -60,13 +60,13 @@ public class IgnoredChannelRepository{
     }
   }
 
-  public IgnoredChannel GetIgnoredChannel(String channelId) throws SQLException{
-    String query = "select * from ignored_channel where channel_id = ?;";
+  public Channel GetChannel(String channelId) throws SQLException{
+    String query = "select * from channel where channel_id = ?;";
     try(Connection con = MeroDatabase.GetConnection();
         PreparedStatement pst = con.prepareStatement(query);
     ){
       pst.setString(1, channelId);
-      return ExtractIgnoredChannel(pst);
+      return ExtractChannel(pst);
     }
     catch(SQLException exception){
       logger.error("input: [query: `{}`, arg1: `{}`], error: `{}`}",
@@ -78,8 +78,8 @@ public class IgnoredChannelRepository{
     }
   }
 
-  public boolean SetIgnoredChannel(String channelId, boolean ignored) throws SQLException{
-    String query = "update ignored_channel set ignored = ? where channel_id = ?;";
+  public boolean SetChannel(String channelId, boolean ignored) throws SQLException{
+    String query = "update channel set ignored = ? where channel_id = ?;";
     try(Connection con = MeroDatabase.GetConnection();
         PreparedStatement pst = con.prepareStatement(query);
     ){

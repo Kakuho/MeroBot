@@ -1,9 +1,9 @@
 package MeroBot.SlashCommands.Ignore;
 
 import MeroBot.SlashCommands.Ignore.IgnoreUtils;
-import MeroBot.Database.Repository.IgnoredChannelRepository;
+import MeroBot.Database.Repository.ChannelRepository;
 import MeroBot.Database.Repository.RoleRepository;
-import MeroBot.Database.Models.IgnoredChannel;
+import MeroBot.Database.Models.Channel;
 
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
@@ -21,7 +21,7 @@ import org.slf4j.LoggerFactory;
 
 public class IgnoreChannelCommand extends ListenerAdapter{
   static public final String COMMAND_NAME = "ignore_channel";
-  private static IgnoredChannelRepository ignoredChannelRepo = new IgnoredChannelRepository();
+  private static ChannelRepository channelRepo = new ChannelRepository();
   private static final Logger logger = LoggerFactory.getLogger(IgnoreChannelCommand.class);
 
   static private void DoReply(SlashCommandInteractionEvent event, String channelId, boolean ignoreValue){
@@ -111,15 +111,15 @@ public class IgnoreChannelCommand extends ListenerAdapter{
         }
         boolean ignoredValue = true;
         boolean channelAdded = false;
-        IgnoredChannel channel = ignoredChannelRepo.GetIgnoredChannel(channelId);
+        Channel channel = channelRepo.GetChannel(channelId);
         if(channel == null){
           ignoredValue = true;
-          ignoredChannelRepo.AddIgnoredChannel(channelId);
+          channelRepo.AddChannel(channelId);
           channelAdded = true;
         }
         else{
           ignoredValue = !channel.GetIgnored();
-          ignoredChannelRepo.SetIgnoredChannel(channelId, ignoredValue);
+          channelRepo.SetChannel(channelId, ignoredValue);
         }
         DoReply(event, channelId, ignoredValue);
         logger.info("{author_id: '{}', input: [channelId: '{}'], output: [ignored: '{}'], comments: '{}'}",
