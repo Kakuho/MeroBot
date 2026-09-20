@@ -46,10 +46,32 @@ public class Config{
     }
   }
 
+  static private void LogAndThrowNullOption(String message){
+      logger.error(message);
+      throw new NullConfigOptionException(message);
+  }
+
+  static private void SysEnvGuard(){
+    if(System.getenv("status_channel") == null){
+      logger.info("environment variable status_channel was found to be null, ignoring it for now...");
+    }
+    if(System.getenv("mero_token") == null){
+      LogAndThrowNullOption("environment variable mero_token was found to be null. Please set this to your discord bot token");
+    }
+    if(System.getenv("DbUser") == null){
+      LogAndThrowNullOption("environment variable DbUser was found to be null. It is recommended to set this value to `meroron`");
+    }
+    if(System.getenv("DbPassword") == null){
+      LogAndThrowNullOption("environment variable DbPassword was found to be null. It is recommended to set this value to `meromeromero`");
+    }
+    if(System.getenv("DbConnectionString") == null){
+      LogAndThrowNullOption("environment variable DbConnectionString was found to be null. It is recommended to set this value to `jdbc:postgresql://localhost:8500/`");
+    }
+  }
+
   static private void InitFromSysEnv(){
+    SysEnvGuard();
     Config.StatusChannel = System.getenv("status_channel");
-    Config.BotToken = System.getenv("mero_token");
-    Config.StatusChannel = System.getenv("status_channel").strip();
     Config.BotToken = System.getenv("mero_token").strip();
     Config.DatabaseUsername = System.getenv("DbUser").strip();
     Config.DatabasePassword = System.getenv("DbPassword").strip();
