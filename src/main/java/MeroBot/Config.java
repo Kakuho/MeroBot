@@ -72,11 +72,19 @@ public class Config{
   static private void InitFromSysEnv(){
     SysEnvGuard();
     Config.StatusChannel = System.getenv("status_channel");
+
     Config.BotToken = System.getenv("mero_token").strip();
-    Config.DatabaseUsername = System.getenv("DbUser").strip();
+    logger.info("mero_token = " + Config.BotToken);
+
+    Config.DatabaseUsername = System.getenv("DbUser");
+    logger.info("DbUser = " + Config.DatabaseUsername);
+
     Config.DatabasePassword = System.getenv("DbPassword").strip();
+    logger.info("DbPassword = " + Config.DatabasePassword);
+
     Config.DatabaseConnectionString = System.getenv("DbConnectionString").strip();
+    logger.info("DbConnectionString = " + Config.DatabaseConnectionString);
+
     Config.Initialised = true;
-    logger.info("Connection String: " + Config.DatabaseConnectionString);
   }
 }
