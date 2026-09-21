@@ -59,6 +59,7 @@ public class TrackEmojisCommand extends ListenerAdapter{
     else{
       event.getHook().sendMessage("Mero will start tracking your emojis mero")
                      .queue();
+
     }
   }
 
@@ -84,6 +85,8 @@ public class TrackEmojisCommand extends ListenerAdapter{
         boolean adminIgnored = user.GetAdminIgnored();
         if(adminIgnored == true && !IgnoreUtils.MemberIsAdmin(event.getMember())){
           // then you cant start tracking yourself, you need an admin to do it first
+          event.getHook().sendMessage("Sorry you were ignored by the admin and have to wait for one ")
+                         .queue();
           logger.error("{input: [userId: '{}'], output: '{}', comments: '{}'}",
               userId, 
               "not tracking",
