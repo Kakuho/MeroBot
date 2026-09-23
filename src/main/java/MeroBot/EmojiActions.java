@@ -21,4 +21,19 @@ public class EmojiActions{
       return channel.sendMessage(emoji.getFormatted()).submit();
     }
   }
+
+  static public CompletableFuture<RichCustomEmoji> GetEmojiFromGuildAsync(Guild guild, String emojiName){
+    return guild.retrieveEmojis().submit()
+    .thenApply(
+      (emojiList) -> {
+        for(var emoji: emojiList){
+          if(emoji.getName().equals(emojiName)){
+            System.out.println(emoji.getName());
+            return emoji;
+          }
+        }
+        return null;
+      }
+    );
+  }
 }
