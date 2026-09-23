@@ -20,7 +20,7 @@ services:
     image: 
       postgres:18
     ports:
-      - "5432:5432"
+      - "8081:5432"
     healthcheck:
       test: ["CMD", "pg_isready"]
       interval: 10s
