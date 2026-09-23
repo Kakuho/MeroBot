@@ -11,6 +11,8 @@ import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.requests.GatewayIntent;
+import net.dv8tion.jda.api.utils.MemberCachePolicy;
+import net.dv8tion.jda.api.utils.cache.CacheFlag;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,7 +22,10 @@ public class App{
 
   static private JDABuilder MeroBotBuilder(){
       JDABuilder builder = JDABuilder.createDefault(Config.GetBotToken())
-                          .enableIntents(GatewayIntent.MESSAGE_CONTENT);
+                          .enableIntents(GatewayIntent.MESSAGE_CONTENT)
+                          .enableIntents(GatewayIntent.GUILD_MEMBERS)
+                          .setMemberCachePolicy(MemberCachePolicy.ALL)
+                          .disableCache(CacheFlag.EMOJI);
       ListenerInstaller.Install(builder);
       CommandInstaller.Install(builder);
       return builder;
