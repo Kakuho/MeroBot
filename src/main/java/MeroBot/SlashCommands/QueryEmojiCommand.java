@@ -1,10 +1,14 @@
 package MeroBot.SlashCommands;
 
 import MeroBot.EmojiUtil;
+import MeroBot.EmojiActions;
 
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.entities.emoji.RichCustomEmoji;
+
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.CompletableFuture;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,11 +38,7 @@ public class QueryEmojiCommand extends ListenerAdapter{
     }
   }
 
-  @Override
-  public void onSlashCommandInteraction(SlashCommandInteractionEvent event){
-    if(!event.getName().equals(COMMAND_NAME)){
-      return;
-    }
+  private void DoViaCache(SlashCommandInteractionEvent event){
     String emojiName = event.getOption("emoji").getAsString();
     RichCustomEmoji emoji = EmojiUtil.GetEmoji(event.getJDA(), event.getGuild(), emojiName);
     if(emoji == null){
@@ -47,6 +47,34 @@ public class QueryEmojiCommand extends ListenerAdapter{
     else{
       event.reply(emojiName + " " + emoji.getFormatted() + " info: from server " + emoji.getGuild().getName()).queue();
     }
+
     LogResult(event, emojiName, emoji);
+  }
+
+  private void DoViaFuture(SlashCommandInteractionEvent event){
+    String emojiName = event.getOption("emoji").getAsString();
+    CompletableFuture<RichCustomEmoji> future = EmojiActions.GetEmojiFromGuildAsync(event.getGuild(), emojiName);
+    try{
+      RichCustomEmoji emoji = future.get();
+      if(emoji == null){
+        event.reply("Sorry... The emoji with name " + emojiName + " cannot be found...").queue();
+      }
+      else{
+        event.reply(emojiName + " " + emoji.getFormatted() + " info: from server " + emoji.getGuild().getName()).queue();
+      }
+    }
+    catch(InterruptedException e){
+    }
+    catch(ExecutionException e){
+    }
+  }
+
+  @Override
+  public void onSlashCommandInteraction(SlashCommandInteractionEvent event){
+    if(!event.getName().equals(COMMAND_NAME)){
+      return;
+    }
+    DoViaFuture(event);
+    //DoViaCache(event);
   }
 }
