@@ -74,7 +74,7 @@ public class Config{
     Config.StatusChannel = System.getenv("status_channel");
 
     Config.BotToken = System.getenv("mero_token").strip();
-    logger.info("mero_token = " + Config.BotToken);
+    logger.info("mero_token = " + "*".repeat(72-5) + Config.BotToken.substring(72-5, 72));
 
     Config.DatabaseUsername = System.getenv("DbUser");
     logger.info("DbUser = " + Config.DatabaseUsername);
