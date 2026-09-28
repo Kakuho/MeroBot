@@ -26,6 +26,8 @@ public class EmojiUtil{
     }
   }
 
+  static public record GetEmojiPack(RichCustomEmoji emoji, Guild guild){}
+
   static public RichCustomEmoji GetEmojiFromOtherServers(JDA jda, String emojiName){
     List<Guild> guilds = jda.getGuilds();
     for(var guild: guilds){
@@ -36,6 +38,19 @@ public class EmojiUtil{
     }
     return null;
   }
+
+  static public GetEmojiPack GetEmojiFromOtherServersPack(JDA jda, String emojiName){
+    // this one returns a pack, so you can query which server the emoji comes from if valid
+    List<Guild> guilds = jda.getGuilds();
+    for(var guild: guilds){
+      List<RichCustomEmoji> foundEmojis = guild.getEmojisByName(emojiName, false);
+      if(foundEmojis.size() >= 1){
+        return new GetEmojiPack(foundEmojis.get(0), guild);
+      }
+    }
+    return null;
+  }
+
 
   static public RichCustomEmoji GetEmoji(JDA jda, Guild sourceGuild, String emojiName){
     // First tries to get the emoji from the sourceGuild, if it fails, it tries 
