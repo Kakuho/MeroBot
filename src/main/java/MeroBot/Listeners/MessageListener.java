@@ -16,6 +16,9 @@ import net.dv8tion.jda.api.entities.channel.attribute.IWebhookContainer;
 import net.dv8tion.jda.api.entities.channel.concrete.ThreadChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.concurrent.CompletableFuture;
 import java.sql.SQLException;
 
@@ -25,6 +28,7 @@ import java.sql.SQLException;
 public class MessageListener extends ListenerAdapter{
   static private UserRepository userRepo = new UserRepository();
   static private ChannelRepository channelRepo = new ChannelRepository();
+  static private final Logger logger = LoggerFactory.getLogger(MessageListener.class);
 
   static private CompletableFuture<Message> SendToChannelAsync(IWebhookContainer container, String content, Member member){
     return WebhookActions.CreateWebhookIfNotOwnAsync(container)
@@ -61,6 +65,7 @@ public class MessageListener extends ListenerAdapter{
     }
     catch(SQLException e){
       // should log the error
+      return false;   // the database has an error, fails the initial checks
     }
     return true;
   }
@@ -77,7 +82,7 @@ public class MessageListener extends ListenerAdapter{
       return;
     }
     // at this point there is an unhandled emoji in the message
-    String outmessage = EmojiDetector.ReplaceEmoji(event.getJDA(), event.getGuild(), content);
+    String outmessage = EmojiDetector.ReplaceEmoji(event.getJDA(), event.getGuild(), message);
     if(outmessage.equals(content)){
       return;
     }
