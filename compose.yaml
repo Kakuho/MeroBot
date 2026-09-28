@@ -7,10 +7,15 @@ services:
       - DbUser=${DbUser}
       - DbPassword=${DbPassword}
       - DbConnectionString=jdbc:postgresql://postgres-service:5432/merobot_db
+    volumes:
+      - type: bind
+        source: ./merobot.log
+        target: /usr/local/app/merobot.log
     restart: on-failure:4
     depends_on:
       postgres-service:
         condition: service_healthy
+
 
   postgres-service:
     environment:
