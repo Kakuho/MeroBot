@@ -3,10 +3,17 @@ package MeroBot;
 import MeroBot.EmojiUtil;
 
 import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.entities.Message;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Set;
+import java.util.HashSet;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 
@@ -26,9 +33,16 @@ import java.util.regex.Matcher;
 //
 //    given the message = ":moomgun: but not <a:moomgun:143242>"
 //    the bot replaces it with "<a:moomgun:1433243>, <a:moomgun:143242>"
+//
+//  kinda want to log it so that
+//  EmojiDetector: Detected Emojis [{EMOJI_NAME1, SERVER}, {EMOJI_NAME2, SERVER}, {EMOJI_NAME3, SERVER}, ...]
+//  EmojiDetector: Couldn't Find Emojis[EMOJI_NAME1, EMOJI_NAME2, ...]
+
+//  should be easier to see which emojis we think are sent and which are not sent
 
 public class EmojiDetector{
   static private final Pattern EMOJI_PATTERN = Pattern.compile("(?<!<a):[a-zA-Z]+:(?![0-9]+>)");
+  static private final Logger logger = LoggerFactory.getLogger(EmojiDetector.class);
 
   static public boolean HasEmoji(String message){
     Matcher matcher = EMOJI_PATTERN.matcher(message);
@@ -39,6 +53,8 @@ public class EmojiDetector{
       return false;
     }
   }
+
+  static public record EmojiLogInfo(String emojiName, String emojiServer){}
 
   static public class EmojiIndexer{
     private int start;
@@ -62,28 +78,93 @@ public class EmojiDetector{
     return emojis;
   }
 
-  static public String ReplaceEmoji(JDA jda, Guild fromGuild, String message){
+  static private void LogBothEmojiLists(String messageId, List<EmojiLogInfo> success, List<EmojiLogInfo> fails){
+    // just so we can log the message atomically
+    // form the success
+    String sucMessage = "";
+    if(!success.isEmpty()){
+      sucMessage += "Found the following emojis from[";
+      for(var emoji: success){
+        sucMessage += " {" + emoji.emojiName + ", " + emoji.emojiServer +"}";
+      }
+      sucMessage += "]";
+    }
+    // form the failure message
+    String failMessage = "";
+    if(!fails.isEmpty()){
+      failMessage += "The following emojis were not found [";
+      for(var emoji: fails){
+        failMessage += " {" + emoji.emojiName + "}";
+      }
+      failMessage += "]";
+    }
+    // now we can log them both
+    String logMessage = messageId + " ";
+    if(!sucMessage.equals("")){
+      logMessage += sucMessage;
+    }
+    if(!failMessage.equals("")){
+      logMessage += failMessage;
+    }
+    logger.info(logMessage);
+  }
+
+  private record ReplaceEmojiPack(String newMessage, List<EmojiLogInfo> success, List<EmojiLogInfo> fail){}
+
+  static private ReplaceEmojiPack DoReplaceEmoji(JDA jda, Guild fromGuild, String message){
+    // free discord users cannot send either current server animated emojis, or normal custom emojis from other servers
+    List<EmojiLogInfo> successEmoji = new ArrayList<>();
+    List<EmojiLogInfo> failedEmoji = new ArrayList<>();
+
+    Set<String> seenEmojis = new HashSet<>();
+    Set<String> invalidEmojis = new HashSet<>();
+
+    String outputMessage = message;
     Matcher matcher = EMOJI_PATTERN.matcher(message);
-    while(matcher.find()){
-      int startIndex = matcher.start();
-      int  endIndex = matcher.end();
-      String emojiRegion = message.substring(startIndex, endIndex);
-      String emojiRaw = message.substring(startIndex + 1, endIndex - 1);
-      String emojiId = null;
+    for(var result: matcher.results().toList()){
+      String emojiRaw = message.substring(result.start(), result.end());
+      if(seenEmojis.contains(emojiRaw)){
+        continue;
+      }
+      // try to fetch the emoji object from servers
+      String emojiName = emojiRaw.substring(1, emojiRaw.length() -1);
+      logger.info(emojiName);
+      Emoji emoji = null;
+      String fromServer = null;
       if(EmojiUtil.GuildHasEmoji(fromGuild, emojiRaw)){
-        // really want null operators here ngl
-        var emoji = EmojiUtil.GetEmojiFromGuild(fromGuild, emojiRaw); 
-        emojiId = emoji != null ? emoji.getFormatted() : null; 
+        emoji = EmojiUtil.GetEmojiFromGuild(fromGuild, emojiName); 
+        fromServer = fromGuild.getName();
       }
       else{
-        // really want null operators here ngl
-        var emoji = EmojiUtil.GetEmojiFromOtherServers(jda, emojiRaw); 
-        emojiId = emoji != null ? emoji.getFormatted() : null; 
+        var foreignPack = EmojiUtil.GetEmojiFromOtherServersPack(jda, emojiName); 
+        if(foreignPack != null){
+          emoji = foreignPack.emoji();
+          fromServer = foreignPack.guild().getName();
+        }
       }
-      if(emojiId != null){
-        message = message.replace(emojiRegion, emojiId);
+      if(emoji != null){
+        outputMessage = outputMessage.replace(emojiRaw, emoji.getFormatted());
+        seenEmojis.add(emojiRaw);
+        successEmoji.add(new EmojiLogInfo(emojiRaw, fromServer));
+      }
+      else{
+        // the emoji could not be found
+        if(!invalidEmojis.contains(emojiRaw)){
+          invalidEmojis.add(emojiRaw);
+          failedEmoji.add(new EmojiLogInfo(emojiRaw, null));
+        }
       }
     }
-    return message;
+    logger.info("finished message: {}", outputMessage);
+    return new ReplaceEmojiPack(outputMessage, successEmoji, failedEmoji);
+  }
+
+  static public String ReplaceEmoji(JDA jda, Guild fromGuild, Message message){
+    logger.info("Replaced Message: {}", message.getContentRaw());
+    var pack = DoReplaceEmoji(jda, fromGuild, message.getContentRaw());
+    if(!pack.success.isEmpty() || !pack.fail.isEmpty()){
+      LogBothEmojiLists(message.getId(), pack.success(), pack.fail());
+    }
+    return pack.newMessage;
   }
 }
