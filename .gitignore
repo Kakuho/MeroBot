@@ -4,5 +4,7 @@ target/
 .classpath
 .project
 .settings/
+
+dist/*.jar
 *.swp
 *.log
