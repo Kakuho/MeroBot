@@ -1,5 +1,11 @@
 Setup for merobot with native java and postgresql, non dockerised version
 
+This is not recommended
+
+Todo: finish this document
+
+-------------------------------------------------------------------------------------
+
 native installation
 
 1) - Navigate to github.com/Kakuho/merbot

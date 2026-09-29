@@ -1,51 +1,61 @@
 Basic setup guide for merobot
 
-Configuration File merobot_config.xml
+Throughout the document:
 
-the bot looks for a merobot_config.xml file. look at sample_conifg.xml to see how to write merobot_config.xml file
+  * MEROBOT_ROOT refers to the root of the source code directory.
 
-The bot token is required and is placed in the <BotToken> element
+  * File locations are wrapped in backticks (`)
+      e.g, `MEROBOT_ROOT/file.txt`.
 
-The status channel is optional however there will be a few jda exceptions being thrown if you leave it empty.
-You are still required to put a <StatusChannel> xml element in the config file.
+  * Directories are written like File locations but with an ending backslash. 
+      e.g, `MEROBOT_ROOT/src/` refers to a directory meanwhile `MEROBOT_ROOT/src/file.txt` refers to file with name
+      `file.txt` located in the MEROBOT_ROOT/src/ directory.
 
-As the bot operates on a opt-in tracking, the database fields are required and NOT OPTIONAL. 
-Please note that a postgresql database was used during development. I do not know if a mysql or a mariadb database 
-would work with merobot in its current state
+  * Terminal commands are wrapped by speechmarks 
+      e.g. "docker".
 
------------------------------------------------------------------------------------------
+  * The document will tell you whether text in backticks refers to terminal commands or file locations.
 
-Logging File merobot.log
+  * I refer to a file called "the fat jar". This file can be found on the release page of merobot and is usually called
+    something like MeroBot-1.0-SNAPSHOT-jar-with-dependencies.jar.
 
-merobot logs events both to the command line and a file called merobot.log
+You can of course deviate from this guide if you know what you're doing. However it's not recommended.
 
-you can periodically delete merobot.log, although its useful to keep handy if there's an error since 
-it can provide hint to reproduce the problem
+-------------------------------------------------------------------------------------
 
------------------------------------------------------------------------------------------
+1) Setup via docker - Linux systems
 
-Running via docker
+Docker makes it very easy to setup both merobot, a postgresql database, and a connection from merobot to that database. To setup docker see `https://docs.docker.com/engine/install/` and follow the instructions for your os.
 
-  First ensure you have the 'Dockerfile' and the 'Merobot.jar' file within the same directory
+First ensure you have docker installed on your system. Typing "docker" in the terminal should tell you if you have it installed, it should return a list of options on how to use docker (you can ignore these).
 
-    if you would like to build 'Merobot.jar', you must ensure you have maven installed and run 'mvn clean compile
-      assembly:single' from the top level directory
+Next either download the fat jar from the release page on github or build the fat jar using maven. The fat jar is a file which packages the jvm executable code for merobot together with all the dependencies required.
 
-  Then you can build the 'merobot' docker image via 'docker build -t merobot .'
+Place the fat jar in the directory `MEROBOT_ROOT/dist`.
 
-  You will have to configure 'merobot_config.xml' file within the container, you can do this two ways:
+Next set up your .env file. In the project root there is a .env file located at `MEROBOT_ROOT/.env` which contains merobot environmental variables. You may have to write the command "ls -al" in order to see it. You only need to set one of them, the rest can be left alone. See 2) Optional Status Channel for more information about the status channel environmental variable.
 
-    - To change it by attaching a terminal to the container, do 'docker start -i CONTAINER_NAME/ID' replacing CONTAINER_NAME/ID as appropriate. This puts you in 
-      a terminal attached to the container's file system. navigate to '/usr/local/app' and you should see
-      'merobot_config.xml'. change it as appropriately
+To open this the .env file for editing you can use vim by writing "vim .env" in `MEROBOT_ROOT` or any other text editor you like using. 
 
-    - You can also change it before you build the docker image. Simply modify the host's 'merobot_config.xml' and then
-      build the docker image via 'docker build -t merobot .'
+required fields to set are:
+  merobottoken - place your discord bot token here. 
 
-There is a docker compose file here which helps make getting merobot up and running very easy
+IMPORTANT: DO NOT EVER UPLOAD THIS VALUE ONLINE.
 
------------------------------------------------------------------------------------------
+You should now be able to write "docker compose up" in the project root. This runs both merobot and a database which merobot uses to store tracking users and tracking channels. 
 
-running without docker
+You can stop the bot by doing `ctrl+c` which will attempt to gracefully stop merobot.
 
-without docker you have to install java, maven and postgresql. 
+-------------------------------------------------------------------------------------
+
+2) Optional Status Channel
+
+Merobot has the ability to send update messages if she's going offline or online. To enable this you can set environment variable `status_channel` in the .env file to the id of the channel where you want the updates to be sent to. 
+
+-------------------------------------------------------------------------------------
+
+3) Logging File merobot.log
+
+Merobot logs events both to the command line and a file located in `MEROBOT_ROOT/merobot.log`.
+
+You can periodically delete `merobot.log`, although its useful to keep handy if there's an error since it can provide hint to reproduce the problem.
